@@ -148,7 +148,7 @@ if(FALSE){
            var(t(apply(array(unlist(
              lapply(1:nbrepSigma,
                       function(qcq){
-                        y=cbind(y,model$rloiy.x(x))#generates y conditionnally to x
+                        y=model$rloiy.x(x)#generates y conditionnally to x
                         z=model$rloiz(y)# generates z conditionnally to x and y
                         s <- model$Scheme$S(z);# draws the sample
                         pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
