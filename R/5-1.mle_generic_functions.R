@@ -146,7 +146,7 @@ if(FALSE){
   calcule.Sigma<-function(model,N,nbrepSigma=1000){
     x <- model$rloix(N)
     dime=c(length(model$theta),model$xihatfuncdim,length(model$theta)+model$xihatfuncdim,nbrepSigma)
-    return(N *tau*
+    return(N *model$tau*
            var(t(apply(array(unlist(
              mclapply(1:nbrepSigma,
                       function(qcq){
