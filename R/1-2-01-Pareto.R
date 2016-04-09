@@ -48,9 +48,9 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   ploi=function(y){pploi<-function(y){(y>=1)*(1-(1/max(y,1)^theta))}
                    return(sapply(y,pploi))},
   ploilim=function(y){1-1/pgamma(y,3/2,2)},
-  rloix=function(N){rep(0,N)},
+  rloix=function(N){rep(NA,N)},
   rloiy.x=function(x){rloiy(length(x))},
-  rloiz=function(x,y){rbinom(length(y),size=1,prob=1/y^xi)},
+  rloiz=function(x,y){rbinom(length(y[,2]),size=1,prob=1/y^xi)},
   dloi=function(y){theta/(y^(theta+1))},
   dloitheta=function(y,theta){theta/(y^(theta+1))},
   Scheme=StratBern(sampleparam),

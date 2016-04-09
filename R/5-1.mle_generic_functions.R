@@ -148,12 +148,12 @@ if(FALSE){
            var(t(apply(array(unlist(
              lapply(1:nbrepSigma,
                       function(qcq){
-                        y=model$rloiy.x(x)#generates y conditionnally to x
-                        z=model$rloiz(x,y)# generates z conditionnally to x and y
+                        y=cbind(y,model$rloiy.x(x))#generates y conditionnally to x
+                        z=model$rloiz(y)# generates z conditionnally to x and y
                         s <- model$Scheme$S(z);# draws the sample
                         pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
-                        return(apply(cbind(Deriveloglikethetaxi(cbind(x[s],y[s]),model,theta,xi),
-                                           model$xihatfunc1(cbind(x[s],y[s]),z[s],pi[s])),2,mean))}))
+                        return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,theta,xi),
+                                           model$xihatfunc1(as.matrix(y)[s,],z[s],pi[s])),2,mean))}))
                              ,dim=dime[c(3,4)]),
              2,function(u){c(u[1:dime[1]],model$xihatfunc2(u[dime[1]+1:dime[2]]))}))))}
 
