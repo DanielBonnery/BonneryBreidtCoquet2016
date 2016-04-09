@@ -86,7 +86,7 @@ model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
       s.y2<-sum((y[,2]^2/pik)[s])  #HT estimator of $\sum_{k=1}^N Y_k^2$
       xi.hat<-(s.zy)/(s.y2)    #estimator of $xi$}
       return(xi.hat)}
-   xihatfunc1 <-function(y,z,pik){c(z*y[,2]/pik,y[,2]^2/pik)}
+   xihatfunc1 <-function(y,z,pik){cbind(z*y[,2]/pik,y[,2]^2/pik)}
    xihatfunc2 <-function(u){u[1]/u[2]}
   
     thetaht=function(y,z,s){

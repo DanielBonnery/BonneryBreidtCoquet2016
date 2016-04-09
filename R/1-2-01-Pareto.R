@@ -80,7 +80,7 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
     HT_theta<-(HT_y/(HT_y-HT_1))
     HT_xi<-HT_theta*((HT_1-HT_yz)/HT_yz)+1
     return(HT_xi)},
-  xihatfunc1=function(y,z,pik){c(1/pik,y/pik,y*z/pik)},
+  xihatfunc1=function(y,z,pik){cbind(1/pik,y/pik,y*z/pik)},
   xihatfunc2=function(u){(u[2]/(u[2]-u[1]))*((u[1]-u[3])/u[3])+1},
   xihatfuncdim=3,
   thetaniais=function(y,z,s){mean(y)},
