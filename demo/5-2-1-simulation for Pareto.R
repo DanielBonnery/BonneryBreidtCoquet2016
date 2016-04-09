@@ -13,11 +13,11 @@ plot(y,z,col='gray20');points(y[s],z[s],col='red');
 N=10000
 y<-m$rloiy(N);z<-m$rloiz(y);s<-m$Scheme$S(z);summary(z[s])
 yy<-sort(y[s])
-zz<-as.vector(kde(yy,0.005,eval.points=yy)$estimate)
-zzz<-as.vector(kde(yyy,0.0005,eval.points=yyy)$estimate)
+zz<-as.vector(ks::kde(yy,0.005,eval.points=yy)$estimate)
+zzz<-as.vector(ks::kde(yyy,0.0005,eval.points=yyy)$estimate)
 yyy<-sort(y)
 plot(yy,zz,type='l',col='black');
 points(yy,m$dloi(yy)*m$rho(yy),type='l',col='blue');
 points(yyy,m$dloi(yyy),type='l',col='red');
 points(yyy,zzz,type='l',col='orange');
-points(yy,m$rho(yy),type='l',col='green');
+points(yy,m$rho(yy),type='l',col='green')

@@ -93,7 +93,7 @@ sample.likepop<-function(theta,y,model,xi){
   Imatrix9<-function(N,model,nbrepI=3000){
     x <- model$rloix(N)
     xrep<-rep(x,nbrepI);
-    y<-cbind(xrep,model$rloiy.x(xrep))
+    y<-model$rloiy.x(xrep)
     dd<-Deriveloglikethetaxi(y,model,theta,xi)
     rhorho <- model$rhothetaxi(y,theta,xi)*model$rhoxthetaxi(xrep,theta,xi)
     return(t(dd)%*%(dd*rhorho)/(N*nbrepI))}
