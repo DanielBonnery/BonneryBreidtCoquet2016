@@ -26,9 +26,9 @@ sample.likepop<-function(theta,y,model,xi){
 ##1.3. Calculus of the derivative of the loglikelihood for one observation
   loglikethetaxi <- function(thetaxi,model,y){
       log(model$rhothetaxi(y,thetaxi[1:length(model$theta)],thetaxi[length(model$theta)+1:length(model$xi)])*model$dloitheta(y,thetaxi[1:length(model$theta)]))}
-  deriveloglikethetaxi  <- function(y,model,theta,xi){jacobian(c(theta,xi),func=loglikethetaxi,model=model,y=y)}
+  deriveloglikethetaxi  <- function(y,model,theta,xi){numDeriv::jacobian(c(theta,xi),func=loglikethetaxi,model=model,y=y)}
 ##1.4 Second order derivative for one observation
-  deriveloglikethetaxi2 <- function(y,model,theta,xi){hessian (c(theta,xi),func=loglikethetaxi,model=model,y=y)}
+  deriveloglikethetaxi2 <- function(y,model,theta,xi){numDeriv::hessian (c(theta,xi),func=loglikethetaxi,model=model,y=y)}
 ##1.5 Second order derivative for one observation          
   rhoderiveloglikethetaxi2<-function(y,model,theta,xi){
     model$rhothetaxi(y,theta,xi)*deriveloglikethetaxi2(y,model,theta,xi)}
@@ -145,7 +145,7 @@ if(FALSE){
   
   calcule.Sigma<-function(model,N,nbrepSigma=1000){
     x <- model$rloix(N)
-    dime=c(length(model$theta),model$xihatfuncdim,length(model$theta)+model$xihatfuncdim,nbrepSigma)
+    dime<-c(length(model$theta),model$xihatfuncdim,length(model$theta)+model$xihatfuncdim,nbrepSigma)
     return(N *model$tau*
            var(t(apply(array(unlist(
              mclapply(1:nbrepSigma,

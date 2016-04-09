@@ -2,7 +2,7 @@
 ##5.2.3. stratification et covariables
 ########################################################
 ########################################################################################################
-library(pubBonneryBreidtCoquet2016)
+#library(pubBonneryBreidtCoquet2016)
 # Definition of the population model 
 popmodelfunction<-model.dep.strat2;
 #sampling parameters

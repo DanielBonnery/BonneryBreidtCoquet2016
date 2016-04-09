@@ -8,7 +8,8 @@ Imports:
   np,
   multicore,
   sampling,
-  optimx
+  optimx,
+  numDeriv
 Maintainer: D. Bonnery  <dbonnery@umd.edu>
 Description: Data
 License: GPL (>= 2)
