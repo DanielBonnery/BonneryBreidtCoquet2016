@@ -4,7 +4,7 @@
 
 ########################################################################################################
 #Call all functions
-source("~/Dropbox/Travail/Recherche/Travaux/Estimation par maximum de vraisemblance/R/main.R")
+library(pubBonneryBreidtCoquet2016)
 # Definition of the population model 
 popmodelfunction<-model.dep.strat2;
 #sampling parameters

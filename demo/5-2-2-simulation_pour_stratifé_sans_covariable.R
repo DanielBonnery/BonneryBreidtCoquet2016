@@ -1,4 +1,4 @@
-
+#library(pubBonneryBreidtCoquet2016)
 ###############################################################
 ##5.5.2. stratification.
 popmodelfunction<-model.dep.strat;
