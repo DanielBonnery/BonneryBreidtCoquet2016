@@ -1,7 +1,6 @@
 #####################################################################
 ##  5.1 Maximum Likelihood Estimation generic functions
 #####################################################################
-
 #    Entries:
 #      - m : a model, i.e. a list that contains at least
 #              - the rhothetaxi function, that is a function of a 
@@ -11,7 +10,6 @@
 #      - theta
 #      - xi
 #      - thetaxi: concatenation of theta and xi
-
 ###################################################################
 ## 1. Computations related to loglikelihood
 
@@ -41,20 +39,20 @@ sample.likepop<-function(theta,y,model,xi){
   Deriveloglikethetaxi2 <-function(y,model,theta,xi){
     if(is.vector(y)){return(deriveloglikethetaxi2(y,model,theta,xi))} 
     if(is.matrix(y)){
-      return(array(unlist(lapply(mclapply(seq_len(length(y[,1])),function(i){y [i,]}),
+      return(array(unlist(lapply(lapply(seq_len(length(y[,1])),function(i){y [i,]}),
                                  deriveloglikethetaxi2,model=model,theta=theta,xi=xi)),
                           dim=c(4,4,length(y[,1]))))}}
   
   RhoDeriveloglikethetaxi2<-function(y,model,theta,xi){
       if(is.vector(y)){return(deriveloglikethetaxi2(y,model=model,theta,xi))} 
     if(is.matrix(y)){
-      return(array(unlist(lapply(mclapply(seq_len(length(y[,1])),function(i){y [i,]}),
+      return(array(unlist(lapply(lapply(seq_len(length(y[,1])),function(i){y [i,]}),
                                  rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi)),
                           dim=c(4,4,length(y[,1]))))}}   
 ## Computation of information matrices
   Imatrix<-function(N,model,nbrepI=300){#3 minutes for n=30
     x <- rloix(N)
-    return(apply(array(unlist(mclapply(1:nbrepI,
+    return(apply(array(unlist(lapply(1:nbrepI,
                                      function(i){
                                        y<-cbind(x,rloiy.x(x))
                                        dd<-Deriveloglikethetaxi(y,model,theta,xi)
@@ -123,7 +121,7 @@ sample.likepop<-function(theta,y,model,xi){
     x <- rloix(N)
     return(apply(array(
       unlist(
-        mclapply(seq_len(nbrepI),
+        lapply(seq_len(nbrepI),
                function(i){
                  y<-cbind(x,rloiy.x(x))
                  s<-Scheme$S(rloiz(y)) 
@@ -148,7 +146,7 @@ if(FALSE){
     dime<-c(length(model$theta),model$xihatfuncdim,length(model$theta)+model$xihatfuncdim,nbrepSigma)
     return(N *model$tau*
            var(t(apply(array(unlist(
-             mclapply(1:nbrepSigma,
+             lapply(1:nbrepSigma,
                       function(qcq){
                         y=model$rloiy.x(x)#generates y conditionnally to x
                         z=model$rloiz(cbind(x,y))# generates z conditionnally to x and y
@@ -306,7 +304,7 @@ simule<-function(N,model,method,nbreps=300){
   S<-model$Scheme$S
   theta<-model$theta
   Xg<-rloix(N);
-  Estim <- mclapply(
+  Estim <- lapply(
     seq_len(nbreps),
     function(i){
                                         #Population generation and sample selection
