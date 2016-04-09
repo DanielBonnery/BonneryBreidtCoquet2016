@@ -1,0 +1,12 @@
+model.unif.SRS<-function(tau){
+  return(list(
+  rloiy=function(N){runif(N)},
+  ploi=function(y){punif(y)},
+  rloiz=function(y){rnorm(length(y))},
+  dloi=function(y){dunif(y)},
+  Scheme=SRS(tau),
+  rho=function(y){1},
+  vinf=function(y){tau-tau^2},
+  En=function(N){tau*N},
+  tau=tau,
+  supportY=c(-.1,1.1)))}
