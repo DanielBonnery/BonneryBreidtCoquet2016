@@ -149,7 +149,7 @@ if(FALSE){
              lapply(1:nbrepSigma,
                       function(qcq){
                         y=model$rloiy.x(x)#generates y conditionnally to x
-                        z=model$rloiz(cbind(x,y))# generates z conditionnally to x and y
+                        z=model$rloiz(x,y)# generates z conditionnally to x and y
                         s <- model$Scheme$S(z);# draws the sample
                         pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
                         return(apply(cbind(Deriveloglikethetaxi(cbind(x[s],y[s]),model,theta,xi),
