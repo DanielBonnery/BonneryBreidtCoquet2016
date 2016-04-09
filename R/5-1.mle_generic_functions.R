@@ -183,7 +183,7 @@ cav<-function(model,N,nbrepSigma=300,nbrepI=300){
         VHT<-NA;#(sum(tauh*proph))*sum(tauh*proph*Vh.ypi_1)
         Vniais<-NA;#1/(sum(tauh*proph))*sum(tauh*proph*Vh.y)
          return(list(Sigma=Sigma,Im=Im,VHT=VHT,V=V,Vniais=Vniais,
-                     V1=V123$V1/(N*tau),V2=V123$V2/(N*tau),V3=V123$V3/(N*tau)))}
+                     V1=V123$V1/(N*model$tau),V2=V123$V2/(N*model$tau),V3=V123$V3/(N*model$tau)))}
 
 
 ##5. Optimisation procedure : computation of the maximum likelihood estimator
