@@ -8,8 +8,9 @@ Execute in R
 
 ## Execution
 Execute in R:
-  ```R
-  library(pubBonneryBreidtCoquet2016)
-  demo(table1)
-  demo(table2)
-  demo(table3)```
+```R
+library(pubBonneryBreidtCoquet2016)
+demo(table1)
+demo(table2)
+demo(table3)
+```
