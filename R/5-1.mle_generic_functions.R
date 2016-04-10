@@ -414,7 +414,7 @@ generetableau<-function(nbreps,popmodelfunction,sampleparam,N,Theta,Xi,Param,fic
   theta<-Theta[[k]];xi<-Xi[[k]];param<-Param[[k]];
   model<-popmodelfunction(sampleparam,theta,xi,param)
   cave <- cav(model,N,nbrepSigma=1000,nbrepI=3000)
-  sim<-simule(N=N,model,method,nbrepI=3000)
+  sim<-simule(N=N,model,method,nbreps=3000)
   save(sim,file=paste("sim_",fic,k,sep=''))
                                         #cave<-cav(proph=c(.7,.3),tauh=c(1/70,2/15),theta=theta,xi=xi,sigma=sigma,nrep=60000)#calculus of variance
      # save(cave,file=paste("cave_",fic,k,sep=''))

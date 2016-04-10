@@ -59,6 +59,7 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   calculsintermediairespourjac=function(y){},
   Jacobiane=function(listeqtes,theta,xi,n){},
   hessiane=function(listeqtes,theta,xi,n){},
+  rhoxthetaxi=function(x,theta,xi){1},
   rhothetaxi=function(y,theta,xi){  as.vector(((sampleparam$tauh%*%rbind(1-theta/(xi+theta),theta/(xi+theta)))^{-1})[1,1]*
                                     (sampleparam$tauh%*%rbind(1-1/(y^xi), 1/(y^xi))))},
   rho=function(y){ as.vector(((sampleparam$tauh%*%rbind(xi/(xi+theta),theta/(xi+theta)))^{-1})[1,1]*
