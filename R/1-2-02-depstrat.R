@@ -121,7 +121,7 @@ model.dep.strat<-function(sampleparam,theta,xi,param){
           Sigma<-tauh[h]*Sigmah[[h]]*proph[h]+Sigma}}
        MA<-matrix(c(1,0,0,0,tau/(theta^2+1),-tau*xi/(theta^2+1)),3,2)
         Sigma<-t(MA)%*%Sigma%*%MA
-        V<-calculeV(Sigma[1,1],Sigma[1,2],Sigma[2,2],I11,I12)
+        V<-calculeV(Sigma,Im,1)
         V1<-calculeV(Sigma[1,1],0,0,I11,0)
           VHT<-(sum(tauh*proph))*sum(tauh*proph*Vh.ypi_1)
           Vniais<-1/(sum(tauh*proph))*sum(tauh*proph*Vh.y)

@@ -39,7 +39,7 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   I11formula<--(((tauh[2]-tauh[1])*xi)/((theta+xi)*(tauh[2]*theta+tauh[1]*xi))*(1/(theta+xi)+tauh[2]/(tauh[2]*theta+tauh[1]*xi))-1/theta^2);
   I12formula<--((tauh[2]-tauh[1])*((tauh[1]*xi)/(tauh[2]*theta+tauh[1]*xi)+xi/(theta+xi)-1))/((theta+xi)*(tauh[2]*theta+tauh[1]*xi));
   rloiy=function(N){exp(-log(1-runif(N))/theta)}
-  rloiy.x=function(x){rloiy(length(x))}
+  rloiy.x=function(x=NULL,N){rloiy(N)}
   return(
   list(
    theta=theta,
@@ -49,9 +49,9 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   ploi=function(y){pploi<-function(y){(y>=1)*(1-(1/max(y,1)^theta))}
                    return(sapply(y,pploi))},
   ploilim=function(y){1-1/pgamma(y,3/2,2)},
-  rloix=function(N){rep(NA,N)},
+  rloix=function(N){NULL},
   rloiy.x=rloiy.x,
-  rloixy.x=function(x){cbind(x,rloiy.x(x))},
+  rloixy.x=function(x){cbind(x,rloiy.x(x,N))},
   rloiz=function(y){rbinom(length(y),size=1,prob=1/y^xi)},
   dloi=function(y){theta/(y^(theta+1))},
   dloitheta=function(y,theta){theta/(y^(theta+1))},
@@ -73,11 +73,10 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   I12formula=I12formula,
   I11=I11formula,
   I12=I12formula,
-  xihat=function(y,z,s){
-    pik<-m$Scheme$Pik(z)[s]
-    HT_y<-sum(y[s]/pik)
-    HT_1<-sum(1/pik)
-    HT_yz<-sum(y[s]*z[s]/pik)
+  xihat=function(y,z,s,pik){
+    HT_y<-sum(y[s]/pik[s])
+    HT_1<-sum(1/pik[s])
+    HT_yz<-sum(y[s]*z[s]/pik[s])
     HT_theta<-(HT_y/(HT_y-HT_1))
     HT_xi<-HT_theta*((HT_1-HT_yz)/HT_yz)+1
     return(HT_xi)},
@@ -85,11 +84,10 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   xihatfunc2=function(u){(u[2]/(u[2]-u[1]))*((u[1]-u[3])/u[3])+1},
   xihatfuncdim=3,
   thetaniais=function(y,z,s){mean(y)},
-  thetaht=function(y,z,s){
-    pik<-m$Scheme$Pik(z)[s]
-    HT_y<-sum((y[s]/pik))
-    HT_1<-sum(1/pik)
-    HT_yz<-sum(y[s]*z[s]/pik)
+  thetaht=function(y,z,s,pik){
+    HT_y<-sum((y[s]/pik[s]))
+    HT_1<-sum(1/pik[s])
+    HT_yz<-sum(y[s]*z[s]/pik[s])
     HT_theta<-(HT_y/(HT_y-HT_1))
     return(HT_theta)},
   thetahat=function(y,z,s){NULL},

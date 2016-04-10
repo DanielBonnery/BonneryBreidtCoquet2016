@@ -1,10 +1,9 @@
-##5.2. Simulation procedure.
+##Table 1
 #library(pubBonneryBreidtCoquet2016)
-#################################################################
-##5.5.1. Pareto.
 popmodelfunction<-model.Pareto.bernstrat;
-sampleparam<-list(tauh=c(1/50,1/10));N<-10000;Theta<-list(4);Xi=list(2);
-Param<-list(list());nbreps<-400;fic="tableauPareto.tex";method="grille";rep="..";
-xi=2;theta=4
-generetableau(nbreps,popmodelfunction,sampleparam,N,Theta,Xi,Param,fic,rep,method,"")
-cat(readLines(fic))
+sampleparam<-list(tauh=c(0.01,0.1));N<-10000;Theta<-list(4,4,4);Xi=list(.1,1,2);
+Param<-list(list());nbreps<-400;method="grille";
+nomparam<-c("$\\theta$")
+
+simulation_data<-Simulation_data(nbreps,popmodelfunction,sampleparam,N,Theta,Xi,Param,method)
+generetableau(simulation_data,nomparam)
