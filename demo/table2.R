@@ -1,5 +1,5 @@
 #library(pubBonneryBreidtCoquet2016)
-###############################################################
+#############################################################
 ##5.5.2. stratification.
 popmodelfunction<-model.dep.strat;
 sampleparam<-list(proph=c(.7,.3),tauh=c(1/70,2/15));
