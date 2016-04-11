@@ -127,7 +127,7 @@ for(r in 1:nreps){
   Y<-y_k[s]
   mu_OLS[r]<-mean(Y)
   weight<-w_k[s]
-  Strata<-Strata[s]
+  #Strata<-Strata[s]
   log_weight<-log(w_k[s])
   n_s<-length(Y)
   var_mu_OLS[r]<-var(Y)/n_s
