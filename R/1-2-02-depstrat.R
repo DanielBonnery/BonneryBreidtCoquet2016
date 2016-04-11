@@ -3,29 +3,8 @@ model.dep.strat<-function(sampleparam,theta,xi,param){
   proph<-sampleparam$proph
   tauh<-sampleparam$tauh
   sigma<-param$sigma
-
-
-  #__________________________________________________________________________
-  # objects related to population generation
-  #__________________________________________________________________________
-  
-
-  #__________________________________________________________________________
-  # objects related to sampling frame and sample
-  #__________________________________________________________________________
     Scheme=StratS(sampleparam)
 
-  #__________________________________________________________________________
-  # objects related to population and sample distribution
-  #__________________________________________________________________________
-
-  #__________________________________________________________________________
-  # objects related to log likelihood differenciation
-  #__________________________________________________________________________
-  
-  ##Calculus of differentiate(Delta)
-
-  
     deriveetheta1<-function(y,sampleparam,theta,xi,param){
        tauh<-sampleparam$tauh;
        proph<-sampleparam$proph;

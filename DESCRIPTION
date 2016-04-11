@@ -9,7 +9,8 @@ Imports:
   multicore,
   sampling,
   optimx,
-  numDeriv
+  numDeriv,
+  plyr
 Maintainer: D. Bonnery  <dbonnery@umd.edu>
 Description: Data
 License: GPL (>= 2)

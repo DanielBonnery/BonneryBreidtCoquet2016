@@ -13,11 +13,11 @@ model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
   ## objects related to population generation
   ##__________________________________________________________________________
     rloix <- function(N){qnorm((1:N)/(N+1),EX,SX)}
-    rloiy.x <- function(x){
-      return(rnorm(x,mean=theta[1]+theta[2]*x,sd=theta[3]))}
+    rloiy.x <- function(x,...){
+      return(cbind(x,rnorm(x,mean=theta[1]+theta[2]*x,sd=theta[3])))}
     rloiy <- function(N){
       x=rloix(N);
-      y<-rloiy.x(x)
+      y<-cbind(x,rloiy.x(x))
       return(cbind(x,y))}
    rloiz=function(y){rnorm(y[,2],mean=xi*y[,2],sd=sigma)}
   ##__________________________________________________________________________
