@@ -1,4 +1,5 @@
 #library(pubBonneryBreidtCoquet2016)
+library(survey)
 data(birth)
 # Gestational age.
 Y<-birth$GestAge
@@ -6,18 +7,13 @@ log_weight<-log(birth$weight)
 n<-length(Y)
 b_GA<-data.frame(birth,Y,log_weight)
 birth.design<-svydesign(~1,weights=~weight,strata=~stratum,data=b_GA)
-mean(Y) # biased and inconsistent
-plot(Y,log(birth$weight),pch=16,col="blue")
 ht.fit<-svyglm(log_weight~Y,birth.design)
-summary(ht.fit)
 Xi<-round(ht.fit$coef[2],3)
 ##########################################################################
 # Save SMLE's
 Sigma2<-round(var(Y)*(n-1)/n,3)
 Mu<-round(mean(Y)+Sigma2*Xi,3) #sample mle
-Mu
 #
-svymean(~Y,birth.design) # HT estimation = pseudo-likelihood
 ##########################################################################
 #Information matrix calculations.
 Inf_11<-matrix(0,2,2)
@@ -56,13 +52,9 @@ e_k<-log(birth$weight)-ht.fit$coef[1]-ht.fit$coef[2]*Y
 tau2<-sum(birth$weight*e_k^2)/sum(birth$weight)
 Tau2<-round(tau2,3)
 
-range(e_k-residuals(ht.fit))
-
 Z<-cbind(rep(1,n),Y)
 W<-diag(birth$weight)
 # Verify ht.fit$coef
-solve(t(Z)%*%W%*%Z)%*%t(Z)%*%W%*%cbind(log(birth$weight))
-ht.fit$coef
 tmp<-rbind(c(0,1))%*%solve(t(Z)%*%W%*%Z)%*%t(Z)
 check_21<- c(tmp)
 check_22<-c(tmp)*Y
@@ -86,7 +78,6 @@ birth.design<-svydesign(~1,weights=~weight,strata=~stratum,data=b_GA2)
 # check_ij verify (Z'WZ)^{-1}Z'WZ=Identity.
 #
 svytotal(~xi0_check+xi0_lin+xi_check+xi_lin+check_11+check_12+check_21+check_22,birth.design)
-summary(ht.fit)
 #
 # Compute svytotal for all three variables then get covariance
 # matrix estimate via vcov()
@@ -95,10 +86,6 @@ a<-svytotal(~score_mu+score_sig2+xi_lin,birth.design)
 Sigma<-n*vcov(a) # design covariance matrix has implicit 1/n
 
 V<-solve(Inf_11)%*%(Sigma[1:2,1:2]+t(Inf_12)%*%Sigma[3,3]%*%Inf_12-t(Inf_12)%*%Sigma[3,1:2]-Sigma[1:2,3]%*%Inf_12)%*%solve(Inf_11)
-
-Mu
-sqrt(V[1,1]/n)
-svymean(~GestAge,birth.design)
 
 ################################################################################
 ################################################################################
@@ -192,35 +179,6 @@ for(r in 1:nreps){
   var_xi_HT[r]<-Sigma[3,3]/n_s
 }# end of simulation loop
 #######################################################################
-Xi
-mean(xi)
-var(xi)
-mean(var_xi_HT)
-
-Mu
-mean(mu_SMLE)
-var(mu_SMLE)
-mean(var_mu_SMLE)
-
-Sigma2
-mean(sig2)
-var(sig2)
-mean(var_sig2_SMLE)
-
-Mu
-mean(mu_HT)
-var(mu_HT)
-mean(var_mu_HT)
-
-Mu
-mean(mu_OLS)
-var(mu_OLS)
-
-boxplot(cbind(mu_OLS,mu_HT,mu_SMLE))
-abline(h=Mu,lwd=2,col="blue")
-
-
-min(smallest_weight)
 
 #Naive, Pseudo, Sample
 Naive<-c(mean(mu_OLS), 100*mean(mu_OLS-Mu)/Mu, mean((mu_OLS-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_OLS),mean(var_mu_OLS))
@@ -327,35 +285,6 @@ for(r in 1:nreps){
   var_xi_HT[r]<-Sigma[3,3]/n_s
 }# end of simulation loop
 #######################################################################
-Xi
-mean(xi)
-var(xi)
-mean(var_xi_HT)
-
-Mu
-mean(mu_SMLE)
-var(mu_SMLE)
-mean(var_mu_SMLE)
-
-Sigma2
-mean(sig2)
-var(sig2)
-mean(var_sig2_SMLE)
-
-Mu
-mean(mu_HT)
-var(mu_HT)
-mean(var_mu_HT)
-
-Mu
-mean(mu_OLS)
-var(mu_OLS)
-
-boxplot(cbind(mu_OLS,mu_HT,mu_SMLE))
-abline(h=Mu,lwd=2,col="blue")
-
-
-min(smallest_weight)
 
 #Naive, Pseudo, Sample
 Naive<-c(mean(mu_OLS), 100*mean(mu_OLS-Mu)/Mu, mean((mu_OLS-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_OLS),mean(var_mu_OLS))
