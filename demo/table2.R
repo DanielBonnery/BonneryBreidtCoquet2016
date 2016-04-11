@@ -8,6 +8,6 @@ N<-5000;nbreps<-400;
 theta=1.5;xi=2
 
 nomparam="$\\sigma$"
-method="grille"
+method="grilleIt"
 simulation_data<-lapply(Param,function(param){Simulation_data(nbreps,popmodelfunction,sampleparam,N,theta,xi,param,method)})
 generetableau(simulation_data,nomparam)

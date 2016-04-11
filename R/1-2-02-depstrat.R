@@ -155,12 +155,15 @@ model.dep.strat<-function(sampleparam,theta,xi,param){
     #cave2=cav2(5000);
 
 
-
+    
+    rloiy=function(N){rnorm(N,theta,1)}
 
   return(list(
     sampleparam=sampleparam,
     theta=theta,xi=xi,param=param,
-    rloiy=function(N){rnorm(N,theta,1)},
+    rloix=function(N){NULL},
+    rloiy.x=function(x,N){rloiy(N)},
+    rloiy=rloiy,
     ploi=function(y){pnorm(y,theta,1)},
     dloi=function(y){dnorm(y,theta,1)},
     dloitheta=function(y,theta){dnorm(y,theta,1)},
@@ -188,17 +191,18 @@ model.dep.strat<-function(sampleparam,theta,xi,param){
     VHT=cave$VHT,
     Vniais=cave$Vniais,
     Sigma=cave$Sigma,
-    xihat=function(y,z,s){
-      pik<-StratS(sampleparam)$Pik(z); #inclusion probabilities
+    xihat=function(y,z,s,pik){ #inclusion probabilities
       s.zy<-sum((z*y/pik)[s]) #HT estimator of $\sum_{k=1}^N Y_k Z_k$
       s.y2<-sum((y^2/pik)[s])  #HT estimator of $\sum_{k=1}^N Y_k^2$
       xi.hat<-(s.zy)/(s.y2)    #estimator of $xi$}
       return(xi.hat)},
-    thetaht=function(y,z,s){
-      pik<-StratS(sampleparam)$Pik(z); #inclusion probabilities
+    xihatfunc1 =function(y,z,pik){cbind(z*y/pik,y^2/pik)},
+    xihatfunc2 =function(u){u[1]/u[2]},
+    xihatfuncdim=2,
+    rhoxthetaxi=function(x,theta,xi){1},
+    thetaht=function(y,z,s,pik){
       s.y<-sum((y/pik)[s])     #HT estimator of $\sum_{k=1}^N Y_k$
       s.1<-sum((1/pik)[s])      #HT estimator of $N$
-      #calculus of three different estimators of theta 
       theta.ht<-s.y/s.1
       return(theta.ht)},
     thetaniais=function(y,z,s){

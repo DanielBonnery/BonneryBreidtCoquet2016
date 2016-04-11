@@ -21,34 +21,23 @@ StratS<-function(param){
   list(
     param=param,
     Pik=function(z){
-      oo<-rank(z);
       N=length(z)
-      Nh<-vector()
-      nh<-vector()
-      Pikk<-rep(NULL,length(z));cum=0
-      for (i in 1:(length(param$proph)-1)){
-        Nh[i]<-floor(param$proph[i]*N);
-        nh[i]<-floor(param$tauh[i]*Nh[i]);
-        Pikk[oo>cum&oo<=cum+Nh[i]]<-nh[i]/Nh[i];cum<-cum+Nh[i]}
-      Nh[i+1]<-N-sum(Nh);nh[i+1]<-floor(param$tauh[i+1]*Nh[i+1]);Pikk[oo>cum]<-nh[i+1]/Nh[i+1];
+      Nh<-floor(param$proph*N);Nh[length(Nh)]=Nh[length(Nh)]+N-sum(Nh)
+      nh<-floor(param$tauh*Nh);
+      Pikk<-rep(nh/Nh,Nh)[rank(z)]
       return(Pikk)},
     S=function(z){
-      oo<-rank(z);
       N=length(z)
-      Nh<-vector()
-      nh<-vector()
-      Sam<-vector();cum<-0
-      for (i in 1:(length(param$proph)-1)){Nh[i]<-floor(param$proph[i]*N);nh[i]<-floor(param$tauh[i]*Nh[i]);
-      Sam<-c(Sam,sample((1:N)[(oo>cum)&(oo<=cum+Nh[i])],size=nh[i],replace=FALSE));cum<-cum+Nh[i]}
-      Nh[i+1]<-N-sum(Nh);nh[i+1]<-floor(param$tauh[i+1]*Nh[i+1]);Sam<-c(Sam,sample((1:N)[(oo>cum)&(oo<=N)],size=nh[i+1],replace=FALSE))
-      return(Sam)},
+      Nh<-floor(param$proph*N);Nh[length(Nh)]=Nh[length(Nh)]+N-sum(Nh)
+      nh<-floor(param$tauh*Nh);
+      unlist(sapply(1:length(Nh),function(i){
+        sample((1:N)[(rank(z)>c(0,cumsum(Nh))[i])&(rank(z)<=cumsum(Nh)[i])],nh[i])}))
+      },
     demarc=function(z){
-      z<-sort(z);
       N=length(z)
-      dem<-vector()
-      Nh<-vector();cum<-0;
-      for (i in 1:(length(param$proph)-1)){Nh[i]<-floor(param$proph[i]*N);cum<-cum+Nh[i];dem[i]<-sort(z)[cum]}
-      return(dem)})}
+      Nh<-floor(param$proph*N);Nh[length(Nh)]=Nh[length(Nh)]+N-sum(Nh)
+      z[order(z)][cumsum(Nh)[-length(Nh)]]
+      })}
 
 #3. Stratified sampling 2 : z is the name of strata
 #param :liste param$tauh : vecteur des taux de sondage par strate
