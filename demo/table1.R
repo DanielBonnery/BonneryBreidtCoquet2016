@@ -7,3 +7,4 @@ nomparam<-c("$\\theta$")
 simulation_data<-lapply(Xi,function(xi){Simulation_data(nbreps,popmodelfunction,sampleparam,N,theta,xi,param,method)})
 x=generetableau(simulation_data,nomparam)
 try(system(paste0("evince ",x)))
+  
