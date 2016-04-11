@@ -3,11 +3,8 @@
 ########################################################
 ########################################################
 #library(pubBonneryBreidtCoquet2016)
-# Definition of the population model 
 popmodelfunction<-model.dep.strat2;
-#sampling parameters
 sampleparam<-list(proph=c(.7,.3),tauh=c(1/70,2/15))
-#Population parameters
 N<-5000;
 theta=c(.5,1,2);xi=2;EX=1;SX=1
 Param<-list(list(sigma=.1,EX=EX,SX=SX),
