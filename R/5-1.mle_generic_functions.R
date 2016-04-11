@@ -139,7 +139,6 @@ if(FALSE){
 
 calcule.Sigma<-function(model,N,nbrepSigma=1000){
   x <- model$rloix(N)
-  dime<-c(length(model$theta)+length(model$xi),model$xihatfuncdim)
   return(N *model$tau*
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
@@ -150,7 +149,7 @@ calcule.Sigma<-function(model,N,nbrepSigma=1000){
                       pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
                       return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi),
                                          model$xihatfunc1(as.matrix(y)[s,],z[s],pi[s])),2,mean))}),
-             1,function(u){c(u[1:dime[1]],model$xihatfunc2(u[dime[1]+1:dime[2]]))})))}
+             1,function(u){c(u[1:length(model$theta)],model$xihatfunc2(u[length(model$theta)+length(model$xi)+(1:model$xihatfuncdim)]))})))}
 
 calculeV<-function(Sigma,Im,dimtheta){  
   dimxi<-length(Sigma[1,])-dimtheta
@@ -383,7 +382,7 @@ generetableau<-function(simulation_data,nomparam="",fic=NULL,directory="."){
               \\begin{tabular}{",struct,"}",sep=''),file=filee,append=F)
   write("\\hline",file=filee,append=T)
   write(paste0("$\\","theta$&",
-              "$\\","xi$&Parameter&Estimator&",nomparam,"
+              "$\\","xi$&",nomparam,"&Estimator
       &Mean[.]
       &Biais[.]
       &Empirical variance[.]
@@ -402,21 +401,20 @@ generetableau<-function(simulation_data,nomparam="",fic=NULL,directory="."){
         &$",affiche(diag(as.matrix(sqrt(MSE$theta.bar/MSE$theta.hat)))),"$
         &$",affiche(diag(as.matrix(cave$Vniais))),"$ \\\\"),file=filee,append=T)
     write(paste("&&&",
-                "Sample ($\\hat{\\theta})$
-        &$",affiche(M$theta.hat),"$ 
-        &$",affiche(Bias$theta.hat),"$ 
-        &$",affiche(diag(as.matrix(Var$theta.hat))),"$
-        &$",affiche(diag(as.matrix(MSE$theta.hat))),"$&$1$
-        &$",affiche(diag(as.matrix(cave$V))),"$
-        \\\\"),file=filee,append=T)
-    write(paste("&&&",
                 "Pseudo ($\\tilde{\\theta})$
         &$",affiche(M$theta.ht),"$ 
         &$",affiche(Bias$theta.ht),"$ 
         &$",affiche(diag(as.matrix(Var$theta.ht))),"$
         &$",affiche(diag(as.matrix(MSE$theta.ht))),"$
         &$",affiche(diag((as.matrix(sqrt(MSE$theta.ht/MSE$theta.hat))))),"$
-        &$",affiche(diag(as.matrix(cave$VHT))),"$ \\\\\\hline"),file=filee,append=T)}
+        &$",affiche(diag(as.matrix(cave$VHT))),"$ \\\\"),file=filee,append=T)
+    write(paste("&&&",
+                "Sample ($\\hat{\\theta})$
+        &$",affiche(M$theta.hat),"$ 
+        &$",affiche(Bias$theta.hat),"$ 
+        &$",affiche(diag(as.matrix(Var$theta.hat))),"$
+        &$",affiche(diag(as.matrix(MSE$theta.hat))),"$&$1$
+        &$",affiche(diag(as.matrix(cave$V))),"$  \\\\\\hline"),file=filee,append=T)}
   write("\\end{tabular}\\end{document}",file=filee,append=T)
   try(system(paste0("cd ",dirname(filee),"&& pdflatex ",basename(filee))))
   try(system(paste0("cd ",dirname(filee),"&& evince ",basename(filee),".pdf")))
