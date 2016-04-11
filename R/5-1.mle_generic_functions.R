@@ -389,22 +389,26 @@ affvector<-function(textee){
 ##    procedure that launches simulations and produces an output:
 ##    a tex code for a table containing the results of simulation
 
-Simulation_data<-function(nbreps,popmodelfunction,sampleparam,N,Theta,Xi,Param,method){
-  lapply(1:length(Theta),function(k){
-    theta<-Theta[[k]];xi<-Xi[[k]];param<-Param[[k]];
-    model<-popmodelfunction(sampleparam,theta,xi,param)
-    cave <- cav(model,N,nbrepSigma=1000,nbrepI=3000)
-    sim<-simule(N=N,model,method,nbreps=3000)
-    return(list(Theta=Theta,Param=Param,Xi=Xi,method=method,sim=sim,cave=cave))})}
+Simulation_data<-function(nbreps,popmodelfunction,sampleparam,N,theta,xi,param,method){
+  model<-popmodelfunction(sampleparam,theta,xi,param)
+  cave <- cav(model,N,nbrepSigma=1000,nbrepI=3000)
+  sim<-simule(N=N,model,method,nbreps=3000)
+  return(list(theta=theta,param=param,xi=xi,method=method,sim=sim,cave=cave))}
 
-generetableau<-function(simulation_data,nomparam,fic=NULL,directory="."){
+generetableau<-function(simulation_dataL,nomparam,fic=NULL,directory="."){
   if(is.null(fic)){filee<-tempfile()}else{filee<-file.path(directory,fic)}
   struct<-"c|c|rrrr|r|r";sepparam<-"&";slashparam<-"\\"
   if (nomparam==""){struct<-"c|rrrr|r|r";sepparam<-"";slashparam<-""}
-  write(paste("\\begin{tabular}{",struct,"}",sep=''),file=filee,append=F)
+  write(paste("\\batchmode\\documentclass[10pt]{report}
+              \\usepackage[landscape]{geometry}
+              \\usepackage[utf8]{inputenc}
+              \\usepackage{amsmath}
+              \\newcommand{\\E}[1]{\\mathrm{E}_{#1}}
+                \\begin{document}
+              \\begin{tabular}{",struct,"}",sep=''),file=filee,append=F)
   write("\\hline",file=filee,append=T)
   write(paste(nomparam,sepparam,
-              "$\\","theta=",affiche(Theta[[1]]),"$
+              "$\\","theta=",affiche(simulation_data[[1]]$theta),"$
       &Mean[.]
       &Biais[.]
       &Empirical variance[.]
@@ -413,7 +417,7 @@ generetableau<-function(simulation_data,nomparam,fic=NULL,directory="."){
       &$\\frac{\\lim\\limits_{\\gamma\\to\\infty}\\V{\\sqrt{n_{\\gamma}}\\times.}}{\\E{n_{\\gamma}}}$\\\\\\hline",sep=''),file=filee,append=T)
   for(k in 1:length(simulation_data)){
     attach(simulation_data[[k]])
-    write(paste("$\ ",affiche(Param[[k]]),"$", sepparam,
+    write(paste("$\ ",affiche(param),"$", sepparam,
                 "$\\hat{\\theta}$
         &$",affiche(sim$m.hat),"$ 
         &$",affiche(sim$m.hat-theta),"$ 
@@ -437,9 +441,11 @@ generetableau<-function(simulation_data,nomparam,fic=NULL,directory="."){
         &$",affiche(diag(as.matrix(sim$mse.bar))),"$
         &$",affiche(diag(as.matrix(sqrt(sim$mse.bar/sim$mse.hat)))),"$
         &$",affiche(diag(as.matrix(cave$Vniais))),"$ \\\\\\hline"),file=filee,append=T)}
-  write("\\end{tabular}",file=filee,append=T)
+  write("\\end{tabular}\\end{document}",file=filee,append=T)
+  try(system(paste0("cd ",dirname(filee),"&& pdflatex ",basename(filee))))
+  try(system(paste0("cd ",dirname(filee),"&& evince ",basename(filee),".pdf")))
   cat(readLines(filee))
-  return(readLines(filee))}
+  return(file.path(dirname(filee),paste0(basename(filee),".pdf")))}
 
 Verifvar<-function(model,N,method){
   list(cav(model,N)$V,simule(N,model,method)$var.hat)
