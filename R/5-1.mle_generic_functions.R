@@ -150,7 +150,7 @@ calcule.Sigma<-function(model,N,nbrepSigma=1000){
                       pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
                       return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi),
                                          model$xihatfunc1(as.matrix(y)[s,],z[s],pi[s])),2,mean))}),
-             1,function(u){c(u[1:dime[1]],model$xihatfunc2(u[dime[1]+1:dime[2]]))}))))}
+             1,function(u){c(u[1:dime[1]],model$xihatfunc2(u[dime[1]+1:dime[2]]))})))}
 
 calculeV<-function(Sigma,Im,dimtheta){  
   dimxi<-length(Sigma[1,])-dimtheta
