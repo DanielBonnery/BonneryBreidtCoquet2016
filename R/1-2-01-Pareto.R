@@ -1,4 +1,3 @@
-
 #2.1. Pareto distribution
 model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
     #sampleparam is a list with tauh
@@ -40,6 +39,7 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   I12formula<--((tauh[2]-tauh[1])*((tauh[1]*xi)/(tauh[2]*theta+tauh[1]*xi)+xi/(theta+xi)-1))/((theta+xi)*(tauh[2]*theta+tauh[1]*xi));
   rloiy=function(N){exp(-log(1-runif(N))/theta)}
   rloiy.x=function(x=NULL,N){rloiy(N)}
+  rloiz=function(y){rbinom(length(y),size=1,prob=1/y^xi)}
   return(
   list(
    theta=theta,
@@ -52,7 +52,7 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   rloix=function(N){NULL},
   rloiy.x=rloiy.x,
   rloixy.x=function(x){cbind(x,rloiy.x(x,N))},
-  rloiz=function(y){rbinom(length(y),size=1,prob=1/y^xi)},
+  rloiz=rloiz,
   dloi=function(y){theta/(y^(theta+1))},
   dloitheta=function(y,theta){theta/(y^(theta+1))},
   Scheme=StratBern(sampleparam),

@@ -51,8 +51,8 @@ Imatrix<-function(N,model,nbrepI=300){#3 minutes for n=30
   return(apply(array(unlist(lapply(1:nbrepI,
                                    function(i){
                                      y<-cbind(x,rloiy.x(x,N))
-                                     dd<-Deriveloglikethetaxi(y,model,theta,xi)
-                                     rhorho=m$rhothetaxi(y,theta,xi)
+                                     dd<-Deriveloglikethetaxi(y,model,m$theta,m$xi)
+                                     rhorho=m$rhothetaxi(y,m$theta,m$xi)
                                      return(t(dd)%*%(dd*rhorho)/N)})),
                      dim=c(4,4,nbrepI)),
                c(1,2),
@@ -72,8 +72,8 @@ Imatrix3<-function(N,model,nbrepI=300){
   xrep<-rep(x,nbrepI);
   nrep=length(xrep)
   y<-cbind(xrep,rloiy.x(xrep,N))
-  dd<-Deriveloglikethetaxi(y,model,theta,xi)
-  rhorho=model$rhothetaxi(y,theta,xi)
+  dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
+  rhorho=model$rhothetaxi(y,model$theta,model$xi)
   return(t(dd)%*%(dd*rhorho)/nrep)}
 
 Imatrix6<-function(N,model,nbrepI=300){
@@ -90,8 +90,8 @@ Imatrix9<-function(N,model,nbrepI=3000){
   x <- model$rloix(N)
   xrep<-rep(x,nbrepI);
   y<-model$rloiy.x(xrep,N)
-  dd<-Deriveloglikethetaxi(y,model,theta,xi)
-  rhorho <- model$rhothetaxi(y,theta,xi)*model$rhoxthetaxi(xrep,theta,xi)
+  dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
+  rhorho <- model$rhothetaxi(y,model$theta,model$xi)*model$rhoxthetaxi(xrep,model$theta,model$xi)
   return(t(dd)%*%(dd*rhorho)/(N*nbrepI))}
 
 
@@ -148,7 +148,7 @@ calcule.Sigma<-function(model,N,nbrepSigma=1000){
                       z=model$rloiz(y)# generates z conditionnally to x and y
                       s <- model$Scheme$S(z);# draws the sample
                       pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
-                      return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,theta,xi),
+                      return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi),
                                          model$xihatfunc1(as.matrix(y)[s,],z[s],pi[s])),2,mean))}))
              ,dim=dime[c(3,4)]),
              2,function(u){c(u[1:dime[1]],model$xihatfunc2(u[dime[1]+1:dime[2]]))}))))}
@@ -309,43 +309,24 @@ simule<-function(N,model,method,nbreps=300){
                   theta.bar=thetaniais(Yg,Zg,Sg),
                   theta.hat=optim       (Yg,Zg,Sg,model,prec,method)))})())
   noms<-names(Estim[[1]])
-  Estim2<-lapply(as.list(noms),function(nom){plyr::laply(Estim,function(ll){ll[[nom]]})})
-  names(Estim2)<-noms
-  attach(Estim2)
-  
-  var.hat=var(t(theta.hat));
-  var.ht=var(t(theta.ht));#apply(Sim$theta.ht,1,var),
-  var.bar=var(t(theta.bar));
-  var.xihat=var(t(xi.hat));
-  m.xihat=apply(xi.hat,1,mean);
-  m.hat=apply(theta.hat,1,mean);
-  m.ht=apply(theta.ht,1,mean);
-  m.bar=apply(theta.bar,1,mean);
+  Estim<-lapply(as.list(noms),function(nom){plyr::laply(Estim,function(ll){ll[[nom]]})})
+  names(Estim)<-noms
+  attach(Estim)
+  Var<-lapply(Estim,var)
+  M=lapply(Estim,function(est){apply(as.matrix(est),2,mean)})
+  E=list(model$xi,model$theta,model$theta,model$theta)
+  names(E)<-names(M)
+  Bias=lapply(as.list(noms),function(x){M[[x]]-E[[x]]})
+  names(Bias)<-names(M)
+  MSE=lapply(as.list(noms),function(x){Var[[x]]+Bias[[x]]%*%t(Bias[[x]])})
+  names(MSE)<-names(M)
   return(list(
     model=model,
-    xi.hat=xi.hat,
-    #Different values for all replications
-    theta.hat=theta.hat,
-    theta.bar=theta.bar,
-    theta.ht=theta.ht,
-    #Mean on all replications
-    m.hat=m.hat,
-    m.ht=m.ht,
-    m.bar=m.bar,
-    m.xihat=m.xihat,
-    #Estimated biais
-    biais.hat=m.hat-theta,
-    biais.ht =m.ht -theta,
-    biais.bar=m.bar-theta,
-    #Estimated variances
-    var.hat  =var.hat,
-    var.ht   =var.ht,
-    var.bar  =var.bar,
-    var.xihat=var.xihat,
-    #Estimated mean square errors
-    mse.hat=var.hat+(m.hat-theta)%*%t(m.hat-theta),
-    mse.ht =var.ht +(m.ht-theta) %*%t(m.ht -theta),
-    mse.bar=var.bar+(m.bar-theta)%*%t(m.bar-theta)))}
+    Estim=Estim,
+    Var=Var,
+    M=M,
+    Bias=Bias,
+    MSE=MSE))}
 
 ##2. Function that displays a number 
 #    for display of nice numbes in output tex tables)
@@ -413,29 +394,30 @@ generetableau<-function(simulation_dataL,nomparam,fic=NULL,directory="."){
       &$\\frac{\\lim\\limits_{\\gamma\\to\\infty}\\V{\\sqrt{n_{\\gamma}}\\times.}}{\\E{n_{\\gamma}}}$\\\\\\hline",sep=''),file=filee,append=T)
   for(k in 1:length(simulation_data)){
     attach(simulation_data[[k]])
+    attach(sim)
     write(paste("$\ ",affiche(param),"$", sepparam,
                 "$\\hat{\\theta}$
-        &$",affiche(sim$m.hat),"$ 
-        &$",affiche(sim$m.hat-theta),"$ 
-        &$",affiche(diag(as.matrix(sim$var.hat))),"$
-        &$",affiche(diag(as.matrix(sim$mse.hat))),"$&$1$
+        &$",affiche(M$theta.hat),"$ 
+        &$",affiche(Bias$theta.hat),"$ 
+        &$",affiche(diag(as.matrix(Var$theta.hat))),"$
+        &$",affiche(diag(as.matrix(MSE$theta.hat))),"$&$1$
         &$",affiche(diag(as.matrix(cave$V))),"$
         \\\\"),file=filee,append=T)
     write(paste(sepparam,
                 "$\\tilde{\\theta}$
-        &$",affiche(sim$m.ht),"$ 
-        &$",affiche(sim$m.ht-theta),"$ 
-        &$",affiche(diag(as.matrix(sim$var.ht))),"$
-        &$",affiche(diag(as.matrix(sim$mse.ht))),"$
-        &$",affiche(diag((as.matrix(sqrt(sim$mse.ht/sim$mse.hat))))),"$
+        &$",affiche(M$theta.ht),"$ 
+        &$",affiche(Bias$theta.ht),"$ 
+        &$",affiche(diag(as.matrix(Var$theta.ht))),"$
+        &$",affiche(diag(as.matrix(MSE$theta.ht))),"$
+        &$",affiche(diag((as.matrix(sqrt(MSE$theta.ht/MSE$theta.hat))))),"$
         &$",affiche(diag(as.matrix(cave$VHT))),"$ \\\\"),file=filee,append=T)
     write(paste(sepparam,
                 "$\\bar{\\theta}$
-        &$",affiche(sim$m.bar),"$ 
-        &$",affiche(sim$m.bar-theta),"$ 
-        &$",affiche(diag(as.matrix(sim$var.bar))),"$
-        &$",affiche(diag(as.matrix(sim$mse.bar))),"$
-        &$",affiche(diag(as.matrix(sqrt(sim$mse.bar/sim$mse.hat)))),"$
+        &$",affiche(M$theta.bar),"$ 
+        &$",affiche(Bias$theta.bar),"$ 
+        &$",affiche(diag(as.matrix(Var$theta.bar))),"$
+        &$",affiche(diag(as.matrix(MSE$theta.bar))),"$
+        &$",affiche(diag(as.matrix(sqrt(MSE$theta.bar/MSE$theta.hat)))),"$
         &$",affiche(diag(as.matrix(cave$Vniais))),"$ \\\\\\hline"),file=filee,append=T)}
   write("\\end{tabular}\\end{document}",file=filee,append=T)
   try(system(paste0("cd ",dirname(filee),"&& pdflatex ",basename(filee))))
