@@ -297,9 +297,8 @@ simule<-function(N,model,method,nbreps=300){
   attach(Scheme)
   #initialization : those vectors will contain the values of the 
   Xg<-rloix(N);
-  Estim <- lapply(
-    seq_len(nbreps),
-    function(i){
+  Estim <- plyr::rlply(nbreps,
+    (function(){
       #Population generation and sample selection
       Yg<-cbind(Xg,rloiy.x(X,N));  #Y generation
       Zg<-rloiz(Yg); #Z generation
@@ -308,14 +307,11 @@ simule<-function(N,model,method,nbreps=300){
       return(list(xi.hat   =xihat     (Yg,Zg,Sg,Pikg),
                   theta.ht =thetaht   (Yg,Zg,Sg,Pikg),
                   theta.bar=thetaniais(Yg,Zg,Sg),
-                  theta.hat=optim       (Yg,Zg,Sg,model,prec,method)))})
-  fromlisttoarray <- function(nom,dime){
-    array(unlist(lapply(Estim,function(ll){ll[nom]})),dim=c(dime,length(Estim)))}
-  
-  theta.bar <- fromlisttoarray("theta.bar",3)
-  theta.hat <- fromlisttoarray("theta.hat",3)
-  theta.ht <- fromlisttoarray("theta.ht",3)
-  xi.hat <- fromlisttoarray("xi.hat",1)
+                  theta.hat=optim       (Yg,Zg,Sg,model,prec,method)))})())
+  noms<-names(Estim[[1]])
+  Estim2<-lapply(as.list(noms),function(nom){plyr::laply(Estim,function(ll){ll[[nom]]})})
+  names(Estim2)<-noms
+  attach(Estim2)
   
   var.hat=var(t(theta.hat));
   var.ht=var(t(theta.ht));#apply(Sim$theta.ht,1,var),
