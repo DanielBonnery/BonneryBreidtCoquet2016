@@ -179,97 +179,17 @@ cav<-function(model,N,nbrepSigma=300,nbrepI=300){
 
 
 ##5. Optimisation procedure : computation of the maximum likelihood estimator
-
-optim<-function(y,z,s,model,prec,method){
-  #y<-Yg;z<-Zg;s<-Sg
-  if(is.vector(y)){N<-length(y)}
-  if(is.matrix(y)){N<-length(y[,1])}
-  if(method=="steepest"){
-    thetahat<-model$theta;
-    xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
-    if(!is.matrix(y)){
-      listeqtes<-model$calculsintermediairespourjac(y[s])}
-    if(is.matrix(y)){
-      listeqtes<-model$calculsintermediairespourjac(y[s,])}
-    k<-1;n<-length(y[,1]);
-    continue<-TRUE
-    alpha<-1
-    while(continue){
-      Jac<-model$Jacobiane(listeqtes,xihat,thetahat,n)
-      delta<-delta*min(abs(thetahat))/(2*max(abs(delta)))
-      fff<-function(xx){
-        model$ll(listeqtes,xihat,thetahat+xx*Jac,n)
-      }
-      xx<-seq(-alpha,alpha,length.out=50)  
-      yy<-sapply(xx,fff);yy[is.na(yy)]<--Inf
-      alpha<-alpha/2+abs(unique(xx[yy==max(yy)])/2)
-      plot(xx,yy,type='l')
-      abline(a=model$ll(listeqtes,xihat,thetahat,n),b=sum(Jac^2),col='red')
-      thetahat0<-thetahat;
-      thetahat<-thetahat+unique(xx[yy==max(yy)])*Jac;
-      points(unique(xx[yy==max(yy)]),max(yy))
-      thetahat0;thetahat;model$ll(listeqtes,xihat,thetahat,n);delta;alpha;
-      sum(Jac^2)
-      k<-k+1;
-      continue<-(max(abs(delta))>prec)&(k<50)
-      if(is.na(continue)){continue<-FALSE}}}
-  if(method=="NewtonR"){
-    thetahat<-model$theta;
-    xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
-    listeqtes<-model$calculsintermediairespourjac(y)
-    continue<-TRUE
-    k<-1;n<-length(y[,1]);
-    continue<-TRUE
-    k<-1
-    while(continue){
-      delta<-solve(model$hessiane(listeqtes,xihat,thetahat,n))%*%model$Jacobiane(listeqtes,xihat,thetahat,n)
-      thetahat<-thetahat-delta;
-      k<-k+1;
-      continue<-(sqrt(sum(delta^2))>prec)&(k<30)
-      if(is.na(continue)){continue<-FALSE}}}
-  if(method=="grille"){
-    if(is.vector(y)){ys<-y[s]}
-    if(is.matrix(y)){ys<-y[s,]}                 #vector of sample responses
-    xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
-    thetahat=optimize(f=sample.likelihood,interval=c(0.2,5)*model$theta,y=ys,model=model,xi=xihat,maximum=TRUE)$maximum
-    if (model$V!=0){thetahat=optimize(f=sample.likelihood,interval=(1+(c(-.1,.1)*sqrt(model$V/(model$tau*N))))*thetahat,tol=sqrt(model$V)/1e8,y=ys,model=model,xi=xihat,maximum=TRUE)$maximum}
-  }
-  if(method=="grilleIt"||method=="grilleItpop"){
-    
-    if(is.vector(y)){ys<-y[s]}
-    if(is.matrix(y)){ys<-y[s,]}                 #vector of sample responses
-    xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
-    
-    if(method=="grilleIt"){sl<-sample.likelihood}
-    if(method=="grilleItpop"){sl<-pop.likelihood}
-    
-    if(FALSE){
-      samplelike<-function(x){return(-sample.likelihood(x,ys,model,xihat))}
-      gr<-function(x){return(as.vector(model$Jacobiane(model$calculsintermediairespourjac(ys),xihat,x,length(ys[,1]))))}
-      hess<-function(x){return(as.vector(model$hessiane(model$calculsintermediairespourjac(ys),xihat,x,length(ys[,1]))))}
-      optimx(par=model$theta,fn=samplelike,gr=gr,hess=hess)}
-    
-    
-    
-    if(TRUE){
-      thetahat<-model$theta
-      th<-vector()
-      dif=1;k=1;dif2=1
-      while(dif>10^{-7}&&k<10000){
-        thetahat0<-thetahat
-        for (i in 1:length(model$theta)){
-          samplelike<-function(x){
-            return(-sl(thetahat+(x-thetahat[i])*((1:length(model$theta))==i),ys,model,xihat))}
-          thetahat[i]<-optimize(f=samplelike,interval=c(-1.5,1.5)*dif2+thetahat[i],tol=dif/1000)$minimum
-        } 
-        k<-k+1
-        dif=max(abs(thetahat0-thetahat))
-        dif2=max(abs(thetahat0-thetahat))+(max(abs(model$theta-thetahat))==0)*(.1^(k/20))
-        th<-cbind(th,thetahat)
-      }}}
+fullMLE<-function(y,z,s,model){optimx::optimx(c(model$theta,model$xi),fn =model$full.likelihood,control=list(maximize=TRUE,method="nlm"),y=y[s,],z=z,s=s)}
+sampleMLE<-function(y,z,s,model,method="nlm"){
+  if(is.vector(y)){ys<-y[s]}
+  if(is.matrix(y)){ys<-y[s,]}
+  xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
+  thetahat<-optimx::optimx(model$theta,
+                            fn=sample.likelihood,method=method,
+                            control=list(maximize=TRUE),
+                            y=ys,model=model,xi=xihat)[1:length(model$theta)]
   
-  if(method=="expression"){
-    thetahat<-model$thetahat(y,model,xi.hat)}
+  
   return(thetahat)
 }
 
@@ -290,7 +210,6 @@ optim<-function(y,z,s,model,prec,method){
 
 simule<-function(N,model,method,nbreps=300){
   #Set the precision (used in optimisation procedure)
-  prec<-0.000001
   attach(model)
   attach(Scheme)
   #initialization : those vectors will contain the values of the 
@@ -305,7 +224,8 @@ simule<-function(N,model,method,nbreps=300){
       return(list(xi.hat   =xihat     (Yg,Zg,Sg,Pikg),
                   theta.ht =thetaht   (Yg,Zg,Sg,Pikg),
                   theta.bar=thetaniais(Yg,Zg,Sg),
-                  theta.hat=optim       (Yg,Zg,Sg,model,prec,method)))})())
+                  thetaxi.full=fullMLE(Yg,Zg,Sg,model,method),
+                  theta.hat=sampleMLE(Yg,Zg,Sg,model,method)))})())
   noms<-names(Estim[[1]])
   Estim<-lapply(as.list(noms),function(nom){plyr::laply(Estim,function(ll){ll[[nom]]})})
   names(Estim)<-noms
