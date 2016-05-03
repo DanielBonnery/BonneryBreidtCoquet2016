@@ -86,7 +86,7 @@ Imatrix6<-function(N,model,nbrepI=300){
 
 
 Imatrix9<-function(N,model,nbrepI=3000,x=NULL){
-  if(is.null(x)){x <- model$rloix(N)}
+  if(is.null(x)){x<-model$rloix(N)}
   xrep<-rep(x,nbrepI);
   y<-model$rloiy.x(xrep,N)
   dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
