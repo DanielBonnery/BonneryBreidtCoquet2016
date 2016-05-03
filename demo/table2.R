@@ -14,6 +14,6 @@ Param<-list(list(sigma=.1,EX=EX,SX=SX),
 nbreps<-1000;
 #Simulation
 table2_data<-lapply(Param,function(param){Simulation_data(nbreps,popmodelfunction,sampleparam,N,theta,xi,param)})
-table2<-lapply(table2,simulation.summary())
+table2<-lapply(table2_data,simulation.summary())
 
 

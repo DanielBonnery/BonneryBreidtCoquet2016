@@ -197,7 +197,7 @@ sampleMLE<-function(y,z,s,model,method="nlm"){
 #6. Simulation procedure
 # Entry :
 
-#  - m a population model, i.e. a list that contains at least:
+#  - model: a population model, i.e. a list that contains at least:
 #      - a function rloiy to generate the population study variable
 #      - a function rloiz that generates the population design variable
 #      - Scheme a list that contains
@@ -209,7 +209,7 @@ sampleMLE<-function(y,z,s,model,method="nlm"){
 #  - method : name of the method for optimisation
 #    ("grille", "Grille It", 
 
-simule<-function(N,model,method,nbreps=300){
+simule<-function(N,model,nbreps=300,method="nlm"){
   #Set the precision (used in optimisation procedure)
   attach(model)
   attach(Scheme)
@@ -289,7 +289,7 @@ affvector<-function(textee){
 Simulation_data<-function(nbreps,popmodelfunction,sampleparam,N,theta,xi,param,method="nlm"){
   model<-popmodelfunction(sampleparam,theta,xi,param)
   cave <- cav(model,N,nbrepSigma=1000,nbrepI=3000)
-  sim<-simule(N=N,model,method,nbreps=3000)
+  sim<-simule(N=N,model,nbreps=3000,method=method)
   return(list(theta=theta,param=param,xi=xi,method=method,sim=sim,cave=cave))}
 
 
