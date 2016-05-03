@@ -181,9 +181,9 @@ for(r in 1:nreps){
 #######################################################################
 
 #Naive, Pseudo, Sample
-Naive<-c(mean(mu_OLS), 100*mean(mu_OLS-Mu)/Mu, mean((mu_OLS-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_OLS),mean(var_mu_OLS))
-Pseudo<-c(mean(mu_HT), 100*mean(mu_HT-Mu)/Mu, mean((mu_HT-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_HT),mean(var_mu_HT))
-Sample<-c(mean(mu_SMLE), 100*mean(mu_SMLE-Mu)/Mu, mean((mu_SMLE-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_SMLE),mean(var_mu_SMLE))
+Naive<-c(mean(mu_OLS), 100*mean(mu_OLS-Mu)/Mu, mean((mu_OLS-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_OLS),mean(var_mu_OLS),mean(var_mu_OLS)/var(mu_OLS))
+Pseudo<-c(mean(mu_HT), 100*mean(mu_HT-Mu)/Mu, mean((mu_HT-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_HT),mean(var_mu_HT),mean(var_mu_HT)/var(mu_HT))
+Sample<-c(mean(mu_SMLE), 100*mean(mu_SMLE-Mu)/Mu, mean((mu_SMLE-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_SMLE),mean(var_mu_SMLE),mean(var_mu_SMLE)/var(mu_SMLE))
 
 out_un<-rbind(Naive,Pseudo,Sample)
 round(out_un,3)
@@ -287,10 +287,11 @@ for(r in 1:nreps){
 #######################################################################
 
 #Naive, Pseudo, Sample
-Naive<-c(mean(mu_OLS), 100*mean(mu_OLS-Mu)/Mu, mean((mu_OLS-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_OLS),mean(var_mu_OLS))
-Pseudo<-c(mean(mu_HT), 100*mean(mu_HT-Mu)/Mu, mean((mu_HT-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_HT),mean(var_mu_HT))
-Sample<-c(mean(mu_SMLE), 100*mean(mu_SMLE-Mu)/Mu, mean((mu_SMLE-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_SMLE),mean(var_mu_SMLE))
+Naive<-c(mean(mu_OLS), 100*mean(mu_OLS-Mu)/Mu, mean((mu_OLS-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_OLS),mean(var_mu_OLS),mean(var_mu_OLS)/var(mu_OLS))
+Pseudo<-c(mean(mu_HT), 100*mean(mu_HT-Mu)/Mu, mean((mu_HT-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_HT),mean(var_mu_HT),mean(var_mu_HT)/var(mu_HT))
+Sample<-c(mean(mu_SMLE), 100*mean(mu_SMLE-Mu)/Mu, mean((mu_SMLE-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_SMLE),mean(var_mu_SMLE),mean(var_mu_SMLE)/var(mu_SMLE))
 
 out_st<-rbind(Naive,Pseudo,Sample)
 table3<-rbind(out_un,out_st)
+colnames(table3)<-c("Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Average Estimated Variance","Variance Ratio")
 round(table3,3)
