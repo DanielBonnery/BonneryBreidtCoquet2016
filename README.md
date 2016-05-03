@@ -27,20 +27,18 @@ Execute in R:
 <table>
 <thead>
 <tr class="header">
-<th align="left"></th>
 <th align="left">Selection</th>
-<th align="left"></th>
-<th align="left"></th>
-<th align="left">Y</th>
-<th align="left"></th>
-<th align="left"></th>
-<th align="left"></th>
-<th align="left"></th>
+<th align="left">Estimator</th>
+<th align="left">Mean</th>
+<th align="left">% Relative Bias</th>
+<th align="left">RMSE Ratio</th>
+<th align="left">Empirical Variance</th>
+<th align="left">Average Estimated Variance</th>
+<th align="left">Variance Ratio</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Naive</td>
 <td align="left">Unstratified</td>
 <td align="left">Naive</td>
 <td align="left">36.9493341452716</td>
@@ -51,7 +49,6 @@ Execute in R:
 <td align="left">0.988806872985154</td>
 </tr>
 <tr class="even">
-<td align="left">Pseudo</td>
 <td align="left">Unstratified</td>
 <td align="left">Pseudo</td>
 <td align="left">39.8045284956133</td>
@@ -62,7 +59,6 @@ Execute in R:
 <td align="left">0.925543013675717</td>
 </tr>
 <tr class="odd">
-<td align="left">Sample</td>
 <td align="left">Unstratified</td>
 <td align="left">Sample</td>
 <td align="left">39.8271511013294</td>
@@ -73,7 +69,6 @@ Execute in R:
 <td align="left">0.94531111750743</td>
 </tr>
 <tr class="even">
-<td align="left">Naive</td>
 <td align="left">Stratified</td>
 <td align="left">Naive</td>
 <td align="left">36.9324436637606</td>
@@ -84,7 +79,6 @@ Execute in R:
 <td align="left">30.2713052646021</td>
 </tr>
 <tr class="odd">
-<td align="left">Pseudo</td>
 <td align="left">Stratified</td>
 <td align="left">Pseudo</td>
 <td align="left">39.8582352344487</td>
@@ -95,7 +89,6 @@ Execute in R:
 <td align="left">0.922539897007337</td>
 </tr>
 <tr class="even">
-<td align="left">Sample</td>
 <td align="left">Stratified</td>
 <td align="left">Sample</td>
 <td align="left">39.8482792387455</td>
