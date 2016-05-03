@@ -32,30 +32,30 @@ demo(table3)
 ### Table 1
 
 
-|Estimator  |Mean     |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
-|:----------|:--------|:---------------|:----------|:------------------|:-------------------|
-|theta.bar  |4.094384 |2.305211        |1.382965   |0.01938998         |NA                  |
-|theta.ht   |4.014403 |0.3587772       |1.558896   |0.03169084         |NA                  |
-|theta.hat  |4.006796 |0.1696069       |1          |0.02041591         |133470.7            |
-|theta.full |NA       |NA              |NA         |NA                 |NA                  |
+|Estimator |Mean |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
+|:---------|:----|:---------------|:----------|:------------------|:-------------------|
+|Naive     |4.1  |2.35            |1.35614    |0.0176681          |NA                  |
+|Pseudo    |4.01 |0.282           |1.57986    |0.0312076          |NA                  |
+|Sample    |4.01 |0.153           |1          |0.0197967          |NA                  |
+|Full      |NA   |NA              |NA         |NA                 |NA                  |
 
 
 
-|Estimator  |Mean     |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
-|:----------|:--------|:---------------|:----------|:------------------|:-------------------|
-|theta.bar  |4.854723 |17.60602        |14.52058   |0.03228804         |NA                  |
-|theta.ht   |4.043793 |1.08298         |2.07893    |0.107299           |NA                  |
-|theta.hat  |4.010812 |0.2695632       |1          |0.05241823         |263102.7            |
-|theta.full |NA       |NA              |NA         |NA                 |NA                  |
+|Estimator |Mean |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
+|:---------|:----|:---------------|:----------|:------------------|:-------------------|
+|Naive     |4.85 |17.6            |15.5287    |0.031158           |NA                  |
+|Pseudo    |4.04 |1.1             |2.21818    |0.106808           |NA                  |
+|Sample    |4.02 |0.374           |1          |0.0488144          |NA                  |
+|Full      |NA   |NA              |NA         |NA                 |NA                  |
 
 
 
-|Estimator  |Mean     |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
-|:----------|:--------|:---------------|:----------|:------------------|:-------------------|
-|theta.bar  |5.578945 |28.30186        |33.22031   |0.05454619         |NA                  |
-|theta.ht   |4.051705 |1.276134        |1.830045   |0.1376699          |NA                  |
-|theta.hat  |4.015815 |0.3938151       |1          |0.07643834         |403041.5            |
-|theta.full |NA       |NA              |NA         |NA                 |NA                  |
+|Estimator |Mean |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
+|:---------|:----|:---------------|:----------|:------------------|:-------------------|
+|Naive     |5.58 |28.3            |33.2311    |0.0545275          |NA                  |
+|Pseudo    |4.05 |1.27            |1.83004    |0.137634           |NA                  |
+|Sample    |4.02 |0.391           |1          |0.0764089          |NA                  |
+|Full      |NA   |NA              |NA         |NA                 |NA                  |
 
 ### Table 2
 
