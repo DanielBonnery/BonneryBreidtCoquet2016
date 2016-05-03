@@ -193,7 +193,7 @@ sampleMLE<-function(y,z,s,model,method="nlm"){
                             control=list(maximize=TRUE),
                             y=ys,model=model,xi=xihat))[1:length(model$theta)]
   return(thetahat)}
-},
+
 #6. Simulation procedure
 # Entry :
 
