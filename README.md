@@ -41,62 +41,62 @@ Execute in R:
 <tr class="odd">
 <td align="left">Unstratified</td>
 <td align="left">Naive</td>
-<td align="left">36.9493341452716</td>
-<td align="left">-7.28594046804115</td>
-<td align="left">20.9946202438705</td>
-<td align="left">0.187706107401689</td>
-<td align="left">0.185605089100079</td>
-<td align="left">0.988806872985154</td>
+<td align="left">36.949</td>
+<td align="left">-7.286</td>
+<td align="left">20.995</td>
+<td align="left">0.188</td>
+<td align="left">0.186</td>
+<td align="left">0.989</td>
 </tr>
 <tr class="even">
 <td align="left">Unstratified</td>
 <td align="left">Pseudo</td>
-<td align="left">39.8045284956133</td>
-<td align="left">-0.121625735544975</td>
-<td align="left">1.10617455375691</td>
-<td align="left">0.452213840893838</td>
-<td align="left">0.418543361126754</td>
-<td align="left">0.925543013675717</td>
+<td align="left">39.805</td>
+<td align="left">-0.122</td>
+<td align="left">1.106</td>
+<td align="left">0.452</td>
+<td align="left">0.419</td>
+<td align="left">0.926</td>
 </tr>
 <tr class="odd">
 <td align="left">Unstratified</td>
 <td align="left">Sample</td>
-<td align="left">39.8271511013294</td>
-<td align="left">-0.0648606094161167</td>
+<td align="left">39.827</td>
+<td align="left">-0.065</td>
 <td align="left">1</td>
-<td align="left">0.410266020257011</td>
-<td align="left">0.387829030084481</td>
-<td align="left">0.94531111750743</td>
+<td align="left">0.41</td>
+<td align="left">0.388</td>
+<td align="left">0.945</td>
 </tr>
 <tr class="even">
 <td align="left">Stratified</td>
 <td align="left">Naive</td>
-<td align="left">36.9324436637606</td>
-<td align="left">-7.32832242551223</td>
-<td align="left">113.910998791737</td>
-<td align="left">0.0061980608369084</td>
-<td align="left">0.187623391642629</td>
-<td align="left">30.2713052646021</td>
+<td align="left">36.932</td>
+<td align="left">-7.328</td>
+<td align="left">113.911</td>
+<td align="left">0.006</td>
+<td align="left">0.188</td>
+<td align="left">30.271</td>
 </tr>
 <tr class="odd">
 <td align="left">Stratified</td>
 <td align="left">Pseudo</td>
-<td align="left">39.8582352344487</td>
-<td align="left">0.0131363622530285</td>
-<td align="left">2.44823123162282</td>
-<td align="left">0.183612703313765</td>
-<td align="left">0.16939004440432</td>
-<td align="left">0.922539897007337</td>
+<td align="left">39.858</td>
+<td align="left">0.013</td>
+<td align="left">2.448</td>
+<td align="left">0.184</td>
+<td align="left">0.169</td>
+<td align="left">0.923</td>
 </tr>
 <tr class="even">
 <td align="left">Stratified</td>
 <td align="left">Sample</td>
-<td align="left">39.8482792387455</td>
-<td align="left">-0.0118454351102767</td>
+<td align="left">39.848</td>
+<td align="left">-0.012</td>
 <td align="left">1</td>
-<td align="left">0.074987003340516</td>
-<td align="left">0.0664162043349024</td>
-<td align="left">0.885702873514046</td>
+<td align="left">0.075</td>
+<td align="left">0.066</td>
+<td align="left">0.886</td>
 </tr>
 </tbody>
 </table>
