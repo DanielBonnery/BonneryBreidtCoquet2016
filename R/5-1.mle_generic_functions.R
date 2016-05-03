@@ -58,8 +58,6 @@ Imatrix<-function(N,model,nbrepI=300){#3 minutes for n=30
                      dim=c(4,4,nbrepI)),
                c(1,2),
                mean))}
-
-
 #compute the information matrix in different ways
 Imatrix2<-function(N,model,nbrepI=300){#very long, 9 minutes for n=30
   x <- rloix(N)
@@ -181,18 +179,27 @@ cav<-function(model,N,nbrepSigma=300,nbrepI=300){
 fullMLE<-function(y,z,s,model,method="nlm"){
   if(is.vector(y)){ys<-y[s]}
   if(is.matrix(y)){ys<-y[s,]}
-  if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
-                                                    fn =full.likelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}
-
+  if(method="formula"){model$fullMLE(y,z,s)}else{
+    if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
+                                                      fn =full.likelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}}
 sampleMLE<-function(y,z,s,model,method="nlm"){
-  if(is.vector(y)){ys<-y[s]}
-  if(is.matrix(y)){ys<-y[s,]}
-  xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
-  thetahat<-unlist(optimx::optimx(model$theta,
-                                  fn=sample.likelihood,method=method,
-                                  control=list(maximize=TRUE),
-                                  y=ys,model=model,xi=xihat))[1:length(model$theta)]
-  return(thetahat)}
+  if(method="formula"){model$sampleMLE(y,z,s)}else{
+    if(is.vector(y)){ys<-y[s]}
+    if(is.matrix(y)){ys<-y[s,]}
+    xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
+    unlist(optimx::optimx(model$theta,
+                          fn=sample.likelihood,method=method,
+                          control=list(maximize=TRUE),
+                          y=ys,model=model,xi=xihat))[1:length(model$theta)]}}
+pseudoMLE<-function(y,z,s,pi,model,method="nlm"){
+  if(method="formula"){model$sampleMLE(y,z,s)}else{
+    if(is.vector(y)){ys<-y[s]}
+    if(is.matrix(y)){ys<-y[s,]}
+    xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
+    unlist(optimx::optimx(model$theta,
+                          fn=sample.likelihood,method=method,
+                          control=list(maximize=TRUE),
+                          y=ys,model=model,xi=xihat))[1:length(model$theta)]}}
 
 #6. Simulation procedure
 # Entry :
@@ -209,7 +216,7 @@ sampleMLE<-function(y,z,s,model,method="nlm"){
 #  - method : name of the method for optimisation
 #    ("grille", "Grille It", 
 
-simule<-function(N,model,nbreps=300,method="nlm"){
+simule<-function(N,model,nbreps=300,method=list(theta.hat="nlm",theta.ht="nlm",theta.bar="nlm",theta.full="nlm")){
   #Set the precision (used in optimisation procedure)
   attach(model)
   attach(Scheme)
@@ -249,123 +256,24 @@ simule<-function(N,model,nbreps=300,method="nlm"){
     Bias=Bias,
     "M.S.E."=MSE))}
 
-##2. Function that displays a number 
-#    for display of nice numbes in output tex tables)
-affiche<-function(X){
-  textee<-sapply(X,function(x){
-    if(is.character(x)){af=x}else{
-      af<-"";
-      if (is.na(x)){af<-" "}
-      if(!is.na(x)){
-        if (length(x)>0){
-          puis2<-floor(log(abs(x))/log(10));
-          puis<-floor(log(abs(x))/log(10^3));if (puis2>-3 &&puis2<3){puis=0};
-          af<-paste("",signif(10^(-3*puis)*x,3),"\\ 10^{",3*puis,"}");
-          if(puis>=0&puis<3){af<-paste("",signif(x,3),sep='')}
-          if(x==0){af="0"}}}}
-    return(af)})
-  aff<-textee
-  if(is.matrix(X)&&length(X[,1])+length(X[1,])>2){aff<-affmatrix(matrix(textee,length(X[1,]),length(X[,1])),X)}
-  if(is.vector(X)&&length(X)>1){aff<-affvector(textee)}
-  return(aff)}
-
-##3. Function to display a matrix
-affmatrix<-function(textee,X){
-  aff<-textee[,1]
-  if(length(X[1,])>1){for(j in 2:length(X[1,])){aff<-paste(aff,paste(textee[,j]),sep="&")}}
-  aff<-paste(aff,"\\\\",sep="")
-  aff<-paste("\\begin{bmatrix}",paste(aff,collapse=""),"\\end{bmatrix}",sep="")
-  return(aff)}
-
-##4. function to display a vector
-affvector<-function(textee){
-  aff<-paste("\\begin{bmatrix}",paste(textee,collapse="\\\\"),"\\end{bmatrix}",sep="")
-  return(aff)}
-
-
-
 #7. Simulations and output
-##    procedure that launches simulations and produces an output:
-##    a tex code for a table containing the results of simulation
-
 Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,param,method="nlm",nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(sampleparam,theta,xi,param)
   cave <- cav(model,N,nbrepSigma=nbrepSigma,nbrepI=nbrepI)
   sim<-simule(N=N,model,nbreps=nbreps,method=method)
   return(list(theta=theta,param=param,xi=xi,method=method,sim=sim,cave=cave))}
 
-
-#cbind(plyr::laply(M,affiche),
-#      plyr::laply(Bias,affiche),
-#      plyr::laply(MSE,function(x){affiche(diag(x))}))
-
-generetableau<-function(simulation_data,nomparam="",fic=NULL,directory="."){
-  if(is.null(fic)){filee<-tempfile()}else{filee<-file.path(directory,fic)}
-  struct<-"c|c|rrrrrr|r|r";
-  write(paste("\\batchmode\\documentclass[10pt]{report}
-              \\usepackage[landscape]{geometry}
-              \\usepackage[utf8]{inputenc}
-              \\usepackage{amsmath}
-              \\newcommand{\\E}[1]{\\mathrm{E}_{#1}}
-                \\begin{document}
-              \\begin{tabular}{",struct,"}",sep=''),file=filee,append=F)
-  write("\\hline",file=filee,append=T)
-  write(paste0("$\\","theta$&",
-               "$\\","xi$&",nomparam,"&Estimator
-      &Mean[.]
-      &Biais[.]
-      &Empirical variance[.]
-      &M.S.E[.] 
-      &$\\sqrt{\\frac{\\rm{MSE}}{\\rm{MSE}(\\hat{\\theta})}}$
-      &$\\frac{\\lim\\limits_{\\gamma\\to\\infty}\\V{\\sqrt{n_{\\gamma}}\\times.}}{\\E{n_{\\gamma}}}$\\\\\\hline",sep=''),file=filee,append=T)
-  for(k in 1:length(simulation_data)){
-    attach(simulation_data[[k]])
-    attach(sim)
-    write(paste("$",affiche(theta),"$&$",affiche(xi),"$&",affiche(param),"&",
-                "Naive ($\\bar{\\theta})$
-        &$",affiche(M$theta.bar),"$ 
-        &$",affiche(Bias$theta.bar),"$ 
-        &$",affiche(diag(as.matrix(Var$theta.bar))),"$
-        &$",affiche(diag(as.matrix(MSE$theta.bar))),"$
-        &$",affiche(diag(as.matrix(sqrt(MSE$theta.bar/MSE$theta.hat)))),"$
-        &$",affiche(diag(as.matrix(cave$V$theta.bar))),"$ \\\\"),file=filee,append=T)
-    write(paste("&&&",
-                "Pseudo ($\\tilde{\\theta})$
-        &$",affiche(M$theta.ht),"$ 
-        &$",affiche(Bias$theta.ht),"$ 
-        &$",affiche(diag(as.matrix(Var$theta.ht))),"$
-        &$",affiche(diag(as.matrix(MSE$theta.ht))),"$
-        &$",affiche(diag((as.matrix(sqrt(MSE$theta.ht/MSE$theta.hat))))),"$
-        &$",affiche(diag(as.matrix(cave$V$theta.ht))),"$ \\\\"),file=filee,append=T)
-    write(paste("&&&",
-                "Sample ($\\hat{\\theta})$
-        &$",affiche(M$theta.hat),"$ 
-        &$",affiche(Bias$theta.hat),"$ 
-        &$",affiche(diag(as.matrix(Var$theta.hat))),"$
-        &$",affiche(diag(as.matrix(MSE$theta.hat))),"$&$1$
-        &$",affiche(diag(as.matrix(cave$V$theta.hat))),"$  \\\\\\hline"),file=filee,append=T)}
-  write("\\end{tabular}\\end{document}",file=filee,append=T)
-  #try(system(paste0("cd ",dirname(filee),"&& pdflatex ",basename(filee))))
-  #try(system(paste0("cd ",dirname(filee),"&& evince ",basename(filee),".pdf")))
-  cat(readLines(filee))
-  return(file.path(dirname(filee),paste0(basename(filee),".pdf")))}
-
-Verifvar<-function(model,N,method){
-  list(cav(model,N)$V,simule(N,model,method)$var.hat)
-}
-
 simulation.summary<-function(table_data){
   lapply(table_data,function(l){
     ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.")],l$cave["V"])
     do.call(rbind,
-        lapply(c("theta.bar","theta.ht","theta.hat","theta.full"),function(est){
-          do.call(data.frame,c(list(Estimator=est),
-                               list("Mean"=as.array(list(ll$Mean[est][[1]]))),
-                               list("% Relative Bias"=as.array(list(100*ll$Bias[est][[1]]/ll$Mean[est][[1]]))),
-                               list("RMSE Ratio"=as.array(list(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["theta.hat"][[1]]))))),
-                               list("Empirical Variance"=as.array(list(diag(as.matrix(ll$Variance[est][[1]]))))),
-                               list("Asymptotic Variance"=as.array(list(diag(as.matrix(ll$V[est][[1]])))))))}))
-    })}
+            lapply(c("theta.bar","theta.ht","theta.hat","theta.full"),function(est){
+              do.call(data.frame,c(list(Estimator=est),
+                                   list("Mean"=as.array(list(ll$Mean[est][[1]]))),
+                                   list("% Relative Bias"=as.array(list(100*ll$Bias[est][[1]]/ll$Mean[est][[1]]))),
+                                   list("RMSE Ratio"=as.array(list(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["theta.hat"][[1]]))))),
+                                   list("Empirical Variance"=as.array(list(diag(as.matrix(ll$Variance[est][[1]]))))),
+                                   list("Asymptotic Variance"=as.array(list(diag(as.matrix(ll$V[est][[1]])))))))}))})}
 
 
 
