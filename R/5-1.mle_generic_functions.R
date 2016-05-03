@@ -275,11 +275,11 @@ simulation.summary<-function(table_data){
     X<-do.call(rbind,
             lapply(c("Naive","Pseudo","Sample","Full"),function(est){
               do.call(data.frame,c(list(Estimator=est),
-                                   list("Mean"=as.array(list(signig(ll$Mean[est][[1]],3)))),
-                                   list("% Relative Bias"=as.array(list(signig(100*ll$Bias[est][[1]]/ll$Mean[est][[1]],3)))),
-                                   list("RMSE Ratio"=as.array(list(signig(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["Sample"][[1]],3)))))),
-                                   list("Empirical Variance"=as.array(list(signig(diag(as.matrix(ll$Variance[est][[1]],3)))))),
-                                   list("Asymptotic Variance"=as.array(list(signig(diag(as.matrix(ll$V[est][[1]],3))))))))}))
+                                   list("Mean"=as.array(list(signif(ll$Mean[est][[1]],3)))),
+                                   list("% Relative Bias"=as.array(list(signif(100*ll$Bias[est][[1]]/ll$Mean[est][[1]],3)))),
+                                   list("RMSE Ratio"=as.array(list(signif(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["Sample"][[1]],3)))))),
+                                   list("Empirical Variance"=as.array(list(signif(diag(as.matrix(ll$Variance[est][[1]],3)))))),
+                                   list("Asymptotic Variance"=as.array(list(signif(diag(as.matrix(ll$V[est][[1]],3))))))))}))
     names(X)<-c("Estimator","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
     X})}    
 
