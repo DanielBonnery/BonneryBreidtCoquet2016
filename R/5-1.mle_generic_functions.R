@@ -179,11 +179,11 @@ cav<-function(model,N,nbrepSigma=300,nbrepI=300){
 fullMLE<-function(y,z,s,model,method="nlm"){
   if(is.vector(y)){ys<-y[s]}
   if(is.matrix(y)){ys<-y[s,]}
-  if(method="formula"){model$fullMLE(y,z,s)}else{
+  if(method=="formula"){model$fullMLE(y,z,s)}else{
     if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
                                                       fn =full.likelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}}
 sampleMLE<-function(y,z,s,model,method="nlm"){
-  if(method="formula"){model$sampleMLE(y,z,s)}else{
+  if(method=="formula"){model$sampleMLE(y,z,s)}else{
     if(is.vector(y)){ys<-y[s]}
     if(is.matrix(y)){ys<-y[s,]}
     xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
