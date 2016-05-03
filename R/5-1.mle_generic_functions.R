@@ -266,14 +266,17 @@ Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,param,method="
 simulation.summary<-function(table_data){
   lapply(table_data,function(l){
     ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.")],l$cave["V"])
-    do.call(rbind,
+    X<-do.call(rbind,
             lapply(c("theta.bar","theta.ht","theta.hat","theta.full"),function(est){
               do.call(data.frame,c(list(Estimator=est),
                                    list("Mean"=as.array(list(ll$Mean[est][[1]]))),
                                    list("% Relative Bias"=as.array(list(100*ll$Bias[est][[1]]/ll$Mean[est][[1]]))),
                                    list("RMSE Ratio"=as.array(list(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["theta.hat"][[1]]))))),
                                    list("Empirical Variance"=as.array(list(diag(as.matrix(ll$Variance[est][[1]]))))),
-                                   list("Asymptotic Variance"=as.array(list(diag(as.matrix(ll$V[est][[1]])))))))}))})}
+                                   list("Asymptotic Variance"=as.array(list(diag(as.matrix(ll$V[est][[1]])))))))}))
+    names(X)<-c("Estimator","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
+    X})}    
+
 
 
 
