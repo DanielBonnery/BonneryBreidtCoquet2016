@@ -12,16 +12,17 @@
 #      - thetaxi: concatenation of theta and xi
 ###################################################################
 ## 1. Computations related to loglikelihood
-
 ##1.1 Calculus of the mean sample log likelihood function
 sample.likelihood<-function(theta,y,model,xi){return(sum(log(model$rhothetaxi(y,theta,xi))+log(model$dloitheta(y,theta))))}
-##1.2. Calculus of the mean population log likelihood
+##1.2 Calculus of the mean sample log likelihood function
+full.likelihood<-function(thetaxi,y,model){if(!is.null(model$fulllikelihood)){log(model$fulllikelihood(y,thetaxi))}else{}}
+##1.3. Calculus of the mean population log likelihood
 pop.likelihood<-function(theta,y,model,xi){return(sum(log(model$dloitheta(y,theta))))}
-##1.3. Calculus of the derivative of the loglikelihood for one observation
+##1.4. Calculus of the derivative of the loglikelihood for one observation
 loglikethetaxi <- function(thetaxi,model,y){
   log(model$rhothetaxi(y,thetaxi[1:length(model$theta)],thetaxi[length(model$theta)+1:length(model$xi)])*model$dloitheta(y,thetaxi[1:length(model$theta)]))}
 deriveloglikethetaxi  <- function(y,model,theta,xi){numDeriv::jacobian(c(theta,xi),func=loglikethetaxi,model=model,y=y)}
-##1.4 Second order derivative for one observation
+##1.5 Second order derivative for one observation
 deriveloglikethetaxi2 <- function(y,model,theta,xi){numDeriv::hessian (c(theta,xi),func=loglikethetaxi,model=model,y=y)}
 ##1.5 Second order derivative for one observation          
 rhoderiveloglikethetaxi2<-function(y,model,theta,xi){
@@ -171,28 +172,28 @@ cav<-function(model,N,nbrepSigma=300,nbrepI=300){
   Im <- Imatrix9(N,model)
   dimtheta<-length(model$theta);
   V123<-calculeV(Sigma,Im,dimtheta)
-  V <- V123$V/(N*model$tau)
-  VHT<-NA;#(sum(tauh*proph))*sum(tauh*proph*Vh.ypi_1)
-  Vniais<-NA;#1/(sum(tauh*proph))*sum(tauh*proph*Vh.y)
-  return(list(Sigma=Sigma,Im=Im,VHT=VHT,V=V,Vniais=Vniais,
+  V<-list(theta.bar=V123$V/(N*model$tau),theta.ht=NA,theta.bar=NA)
+  return(list(Sigma=Sigma,Im=Im,V=V,
               V1=V123$V1/(N*model$tau),V2=V123$V2/(N*model$tau),V3=V123$V3/(N*model$tau)))}
 
 
 ##5. Optimisation procedure : computation of the maximum likelihood estimator
-fullMLE<-function(y,z,s,model){optimx::optimx(c(model$theta,model$xi),fn =model$full.likelihood,control=list(maximize=TRUE,method="nlm"),y=y[s,],z=z,s=s)}
+fullMLE<-function(y,z,s,model,method="nlm"){
+  if(is.vector(y)){ys<-y[s]}
+  if(is.matrix(y)){ys<-y[s,]}
+  if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
+                 fn =full.likelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}
+
 sampleMLE<-function(y,z,s,model,method="nlm"){
   if(is.vector(y)){ys<-y[s]}
   if(is.matrix(y)){ys<-y[s,]}
   xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
-  thetahat<-optimx::optimx(model$theta,
+  thetahat<-unlist(optimx::optimx(model$theta,
                             fn=sample.likelihood,method=method,
                             control=list(maximize=TRUE),
-                            y=ys,model=model,xi=xihat)[1:length(model$theta)]
-  
-  
-  return(thetahat)
-}
-
+                            y=ys,model=model,xi=xihat))[1:length(model$theta)]
+  return(thetahat)}
+},
 #6. Simulation procedure
 # Entry :
 
@@ -232,7 +233,7 @@ simule<-function(N,model,method,nbreps=300){
   attach(Estim)
   Var<-lapply(Estim,var)
   M=lapply(Estim,function(est){apply(as.matrix(est),2,mean)})
-  E=list(model$xi,model$theta,model$theta,model$theta)
+  E=list(model$xi,model$theta,model$theta,model$theta,model$theta)
   names(E)<-names(M)
   Bias=lapply(as.list(noms),function(x){M[[x]]-E[[x]]})
   names(Bias)<-names(M)
@@ -250,6 +251,7 @@ simule<-function(N,model,method,nbreps=300){
 #    for display of nice numbes in output tex tables)
 affiche<-function(X){
   textee<-sapply(X,function(x){
+    if(is.character(x)){af=x}else{
     af<-"";
     if (is.na(x)){af<-" "}
     if(!is.na(x)){
@@ -258,7 +260,7 @@ affiche<-function(X){
         puis<-floor(log(abs(x))/log(10^3));if (puis2>-3 &&puis2<3){puis=0};
         af<-paste("",signif(10^(-3*puis)*x,3),"\\ 10^{",3*puis,"}");
         if(puis>=0&puis<3){af<-paste("",signif(x,3),sep='')}
-        if(x==0){af="0"}}}
+        if(x==0){af="0"}}}}
     return(af)})
   aff<-textee
   if(is.matrix(X)&&length(X[,1])+length(X[1,])>2){aff<-affmatrix(matrix(textee,length(X[1,]),length(X[,1])),X)}
@@ -284,11 +286,16 @@ affvector<-function(textee){
 ##    procedure that launches simulations and produces an output:
 ##    a tex code for a table containing the results of simulation
 
-Simulation_data<-function(nbreps,popmodelfunction,sampleparam,N,theta,xi,param,method){
+Simulation_data<-function(nbreps,popmodelfunction,sampleparam,N,theta,xi,param,method="nlm"){
   model<-popmodelfunction(sampleparam,theta,xi,param)
   cave <- cav(model,N,nbrepSigma=1000,nbrepI=3000)
   sim<-simule(N=N,model,method,nbreps=3000)
   return(list(theta=theta,param=param,xi=xi,method=method,sim=sim,cave=cave))}
+
+
+#cbind(plyr::laply(M,affiche),
+#      plyr::laply(Bias,affiche),
+#      plyr::laply(MSE,function(x){affiche(diag(x))}))
 
 generetableau<-function(simulation_data,nomparam="",fic=NULL,directory="."){
   if(is.null(fic)){filee<-tempfile()}else{filee<-file.path(directory,fic)}
@@ -319,7 +326,7 @@ generetableau<-function(simulation_data,nomparam="",fic=NULL,directory="."){
         &$",affiche(diag(as.matrix(Var$theta.bar))),"$
         &$",affiche(diag(as.matrix(MSE$theta.bar))),"$
         &$",affiche(diag(as.matrix(sqrt(MSE$theta.bar/MSE$theta.hat)))),"$
-        &$",affiche(diag(as.matrix(cave$Vniais))),"$ \\\\"),file=filee,append=T)
+        &$",affiche(diag(as.matrix(cave$V$theta.bar))),"$ \\\\"),file=filee,append=T)
     write(paste("&&&",
                 "Pseudo ($\\tilde{\\theta})$
         &$",affiche(M$theta.ht),"$ 
@@ -327,20 +334,39 @@ generetableau<-function(simulation_data,nomparam="",fic=NULL,directory="."){
         &$",affiche(diag(as.matrix(Var$theta.ht))),"$
         &$",affiche(diag(as.matrix(MSE$theta.ht))),"$
         &$",affiche(diag((as.matrix(sqrt(MSE$theta.ht/MSE$theta.hat))))),"$
-        &$",affiche(diag(as.matrix(cave$VHT))),"$ \\\\"),file=filee,append=T)
+        &$",affiche(diag(as.matrix(cave$V$theta.ht))),"$ \\\\"),file=filee,append=T)
     write(paste("&&&",
                 "Sample ($\\hat{\\theta})$
         &$",affiche(M$theta.hat),"$ 
         &$",affiche(Bias$theta.hat),"$ 
         &$",affiche(diag(as.matrix(Var$theta.hat))),"$
         &$",affiche(diag(as.matrix(MSE$theta.hat))),"$&$1$
-        &$",affiche(diag(as.matrix(cave$V))),"$  \\\\\\hline"),file=filee,append=T)}
+        &$",affiche(diag(as.matrix(cave$V$theta.hat))),"$  \\\\\\hline"),file=filee,append=T)}
   write("\\end{tabular}\\end{document}",file=filee,append=T)
-  try(system(paste0("cd ",dirname(filee),"&& pdflatex ",basename(filee))))
-  try(system(paste0("cd ",dirname(filee),"&& evince ",basename(filee),".pdf")))
+  #try(system(paste0("cd ",dirname(filee),"&& pdflatex ",basename(filee))))
+  #try(system(paste0("cd ",dirname(filee),"&& evince ",basename(filee),".pdf")))
   cat(readLines(filee))
   return(file.path(dirname(filee),paste0(basename(filee),".pdf")))}
 
 Verifvar<-function(model,N,method){
   list(cav(model,N)$V,simule(N,model,method)$var.hat)
 }
+
+simulation.summary<-function(table_data){
+  tablex<-lapply(table_data,function(l){
+    ll<-c(l$sim[c("M","Bias","Var","MSE")],l$cave["V"])
+    do.call(
+      lapply(c("theta.bar","theta.hat","theta.ht"),function(est){
+        do.call(data.frame,lapply(ll,function(lll){as.array(list(lll[est]))}))}),rbind)})
+  names(tablex)<-c(
+    "Estimator",
+    "Mean",
+    "Biais",
+    "Empirical variance",
+    "Empirical M.S.E",
+    "Relative Empirical MSE",
+    "Asymptotic variance")
+  tablex}
+
+
+  

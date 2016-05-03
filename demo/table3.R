@@ -292,5 +292,5 @@ Pseudo<-c(mean(mu_HT), 100*mean(mu_HT-Mu)/Mu, mean((mu_HT-Mu)^2)/mean((mu_SMLE-M
 Sample<-c(mean(mu_SMLE), 100*mean(mu_SMLE-Mu)/Mu, mean((mu_SMLE-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_SMLE),mean(var_mu_SMLE))
 
 out_st<-rbind(Naive,Pseudo,Sample)
-out<-rbind(out_un,out_st)
-round(out,3)
+table3<-rbind(out_un,out_st)
+round(table3,3)
