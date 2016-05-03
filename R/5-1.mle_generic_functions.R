@@ -360,10 +360,15 @@ simulation.summary<-function(table_data){
     do.call(rbind,
         lapply(c("theta.bar","theta.ht","theta.hat","theta.full"),function(est){
           do.call(data.frame,c(list(Estimator=est),
-                               lapply(ll,function(lll){as.array(list(lll[est]))}),
-                               list("Relative Variance"=as.array(list(
-                                 diag(ll$Variance[est],nrow=(if(is.matrix(ll$Variance[est])){nrow(ll$Variance[est])}else{1}))/
-                                   diag(ll$Variance["theta.hat"],nrow=(if(is.matrix(ll$Variance[est])){nrow(ll$Variance[est])}else{1})))))))}))
+                               list("Mean"=as.array(list(ll$Mean[est]))),
+                               list("% Relative Bias"=as.array(list(100*ll$Bias[est][[1]]/ll$Mean[est][[1]]))),
+                               list("RMSE Ratio"=as.array(list(
+                                 diag(ll$MSE[est],nrow=(if(is.matrix(ll$MSE[est][[1]])){nrow(ll$MSE[est][[1]])}else{1}))/
+                                   diag(ll$MSE["theta.hat"],nrow=(if(is.matrix(ll$MSE["theta.hat"])){nrow(ll$MSE[est][[1]])}else{1}))))),
+                               list("Empirical Variance"=as.array(list(diag(ll$Variance[est][[1]],nrow=(if(is.matrix(ll$Variance[est][[1]])){nrow(ll$Variance[est][[1]])}else{1}))))),
+                               list("Asymptotic Variance"=as.array(list(
+                                 diag(ll$V[est][[1]],nrow=(if(is.matrix(ll$V[est][[1]])){nrow(ll$V[est][[1]])}else{1}))/
+                                   diag(ll$V["theta.hat"],nrow=(if(is.matrix(ll$V[est][[1]])){nrow(ll$V[est][[1]])}else{1})))))))}))
     })}
 
 
