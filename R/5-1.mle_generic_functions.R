@@ -192,7 +192,7 @@ sampleMLE<-function(y,z,s,model,method="nlm"){
                           control=list(maximize=TRUE),
                           y=ys,model=model,xi=xihat))[1:length(model$theta)]}}
 pseudoMLE<-function(y,z,s,pi,model,method="nlm"){
-  if(method="formula"){model$sampleMLE(y,z,s)}else{
+  if(method=="formula"){model$sampleMLE(y,z,s)}else{
     if(is.vector(y)){ys<-y[s]}
     if(is.matrix(y)){ys<-y[s,]}
     xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
