@@ -26,18 +26,6 @@ demo(table3)
 
 
 ```
-## Warning in FUN(X[[i]], ...): restarting interrupted promise evaluation
-```
-
-```
-## Warning in FUN(X[[i]], ...): internal error -3 in R_decompress1
-```
-
-```
-## Error in FUN(X[[i]], ...): lazy-load database '/home/daniel/R/x86_64-pc-linux-gnu-library/3.2/pubBonneryBreidtCoquet2016/data/Rdata.rdb' is corrupt
-```
-
-```
 ## Warning in data(table1, table2, table3): data set 'table2' not found
 ```
                                                                                                 
