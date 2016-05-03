@@ -172,7 +172,7 @@ cav<-function(model,N,nbrepSigma=300,nbrepI=300){
   Im <- Imatrix9(N,model)
   dimtheta<-length(model$theta);
   V123<-calculeV(Sigma,Im,dimtheta)
-  V<-list(theta.hat=V123$V/(N*model$tau),theta.ht=NA,theta.bar=NA)
+  V<-list(theta.hat=V123$V/(N*model$tau),theta.ht=NA,theta.bar=NA,theta.full=NA)
   return(list(Sigma=Sigma,Im=Im,V=V,
               V1=V123$V1/(N*model$tau),V2=V123$V2/(N*model$tau),V3=V123$V3/(N*model$tau)))}
 
@@ -360,15 +360,11 @@ simulation.summary<-function(table_data){
     do.call(rbind,
         lapply(c("theta.bar","theta.ht","theta.hat","theta.full"),function(est){
           do.call(data.frame,c(list(Estimator=est),
-                               list("Mean"=as.array(list(ll$Mean[est]))),
+                               list("Mean"=as.array(list(ll$Mean[est][[1]]))),
                                list("% Relative Bias"=as.array(list(100*ll$Bias[est][[1]]/ll$Mean[est][[1]]))),
-                               list("RMSE Ratio"=as.array(list(
-                                 diag(ll$MSE[est],nrow=(if(is.matrix(ll$MSE[est][[1]])){nrow(ll$MSE[est][[1]])}else{1}))/
-                                   diag(ll$MSE["theta.hat"],nrow=(if(is.matrix(ll$MSE["theta.hat"])){nrow(ll$MSE[est][[1]])}else{1}))))),
-                               list("Empirical Variance"=as.array(list(diag(ll$Variance[est][[1]],nrow=(if(is.matrix(ll$Variance[est][[1]])){nrow(ll$Variance[est][[1]])}else{1}))))),
-                               list("Asymptotic Variance"=as.array(list(
-                                 diag(ll$V[est][[1]],nrow=(if(is.matrix(ll$V[est][[1]])){nrow(ll$V[est][[1]])}else{1}))/
-                                   diag(ll$V["theta.hat"],nrow=(if(is.matrix(ll$V[est][[1]])){nrow(ll$V[est][[1]])}else{1})))))))}))
+                               list("RMSE Ratio"=as.array(list(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["theta.hat"][[1]]))))),
+                               list("Empirical Variance"=as.array(list(diag(as.matrix(ll$Variance[est][[1]]))))),
+                               list("Asymptotic Variance"=as.array(list(diag(as.matrix(ll$V[est][[1]]))/diag(as.matrix(ll$V["theta.hat"][[1]])))))))}))
     })}
 
 
