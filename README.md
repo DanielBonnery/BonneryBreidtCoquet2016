@@ -12,7 +12,7 @@ Execution
 
 Execute in R:
 
-    `devtools::github("DanielBonnery/pubBonneryBreidtCoquet2016")`
+    devtools::github("DanielBonnery/pubBonneryBreidtCoquet2016")
     library(pubBonneryBreidtCoquet2016)
     demo(table1)
     demo(table2)
