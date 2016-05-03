@@ -48,12 +48,12 @@ RhoDeriveloglikethetaxi2<-function(y,model,theta,xi){
                  dim=c(4,4,length(y[,1]))))}}   
 ## Computation of information matrices
 Imatrix<-function(N,model,nbrepI=300){#3 minutes for n=30
-  x <- rloix(N)
+  x <- model$rloix(N)
   return(apply(array(unlist(lapply(1:nbrepI,
                                    function(i){
-                                     y<-cbind(x,rloiy.x(x,N))
-                                     dd<-Deriveloglikethetaxi(y,model,m$theta,m$xi)
-                                     rhorho=m$rhothetaxi(y,m$theta,m$xi)
+                                     y<-model$rloiy.x(xrep,N)
+                                     dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
+                                     rhorho=model$rhothetaxi(y,model$theta,model$xi)
                                      return(t(dd)%*%(dd*rhorho)/N)})),
                      dim=c(4,4,nbrepI)),
                c(1,2),
@@ -85,8 +85,8 @@ Imatrix6<-function(N,model,nbrepI=300){
   return(t(dd)%*%(dd)/nrep)}
 
 
-Imatrix9<-function(N,model,nbrepI=3000){
-  x <- model$rloix(N)
+Imatrix9<-function(N,model,nbrepI=3000,x=NULL){
+  if(is.null(x)){x <- model$rloix(N)}
   xrep<-rep(x,nbrepI);
   y<-model$rloiy.x(xrep,N)
   dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
@@ -136,8 +136,8 @@ if(FALSE){
 }
 
 
-calcule.Sigma<-function(model,N,nbrepSigma=1000){
-  x <- model$rloix(N)
+calcule.Sigma<-function(model,N,nbrepSigma=1000,x=NULL){
+  if(is.null(x)){x <- model$rloix(N)}
   return(N *model$tau*
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
@@ -165,12 +165,13 @@ calculeV<-function(Sigma,Im,dimtheta){
   return(list(V=V,V1=V1,V2=V2,V3=V3))}
 
 
-cav<-function(model,N,nbrepSigma=300,nbrepI=300){
-  Sigma <- calcule.Sigma(model,N,nbrepSigma)
-  Im <- Imatrix9(N,model)
+cav<-function(model,N,nbrepSigma=300,nbrepI=300,x=NULL){
+  if(is.null(x)){x <- model$rloix(N)}
+  Sigma <- calcule.Sigma(model,N,nbrepSigma,x=x)
+  Im <- Imatrix9(N,model,x=x)
   dimtheta<-length(model$theta);
   V123<-calculeV(Sigma,Im,dimtheta)
-  V<-list(theta.hat=V123$V/(N*model$tau),theta.ht=NA,theta.bar=NA,theta.full=NA)
+  V<-list(Sample=V123$V/(N*model$tau),Pseudo=NA,Naive=NA,Full=NA)
   return(list(Sigma=Sigma,Im=Im,V=V,
               V1=V123$V1/(N*model$tau),V2=V123$V2/(N*model$tau),V3=V123$V3/(N*model$tau)))}
 
@@ -216,12 +217,12 @@ pseudoMLE<-function(y,z,s,pi,model,method="nlm"){
 #  - method : name of the method for optimisation
 #    ("grille", "Grille It", 
 
-simule<-function(N,model,nbreps=300,method=list(theta.hat="nlm",theta.ht="nlm",theta.bar="nlm",theta.full="nlm")){
+simule<-function(N,model,nbreps=300,method=list(Sample="nlm",Pseudo="nlm",Naive="nlm",Full="nlm"),x=NULL){
   #Set the precision (used in optimisation procedure)
   attach(model)
   attach(Scheme)
   #initialization : those vectors will contain the values of the 
-  Xg<-rloix(N);
+  Xg<-if(is.null(x)){rloix(N)}else{x}
   Estim <- plyr::rlply(nbreps,
                        (function(){
                          #Population generation and sample selection
@@ -231,11 +232,11 @@ simule<-function(N,model,nbreps=300,method=list(theta.hat="nlm",theta.ht="nlm",t
                          Pikg<-Pik(Zg)
                          thetaxi.full=fullMLE(Yg,Zg,Sg,model,method)
                          return(list(xi.hat   =xihat     (Yg,Zg,Sg,Pikg),
-                                     theta.ht =thetaht   (Yg,Zg,Sg,Pikg),
-                                     theta.bar=thetaniais(Yg,Zg,Sg),
-                                     theta.hat=sampleMLE(Yg,Zg,Sg,model,method),
+                                     Pseudo =thetaht   (Yg,Zg,Sg,Pikg),
+                                     Naive=thetaniais(Yg,Zg,Sg),
+                                     Sample=sampleMLE(Yg,Zg,Sg,model,method),
                                      xi.full=thetaxi.full[length(model$theta)+(1:length(model$xi))],
-                                     theta.full=thetaxi.full[1:length(model$theta)]))})())
+                                     Full=thetaxi.full[1:length(model$theta)]))})())
   noms<-names(Estim[[1]])
   Estim<-lapply(as.list(noms),function(nom){plyr::laply(Estim,function(ll){ll[[nom]]})})
   names(Estim)<-noms
@@ -259,21 +260,22 @@ simule<-function(N,model,nbreps=300,method=list(theta.hat="nlm",theta.ht="nlm",t
 #7. Simulations and output
 Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,param,method="nlm",nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(sampleparam,theta,xi,param)
-  cave <- cav(model,N,nbrepSigma=nbrepSigma,nbrepI=nbrepI)
-  sim<-simule(N=N,model,nbreps=nbreps,method=method)
+  x<-model$rloix(N);
+  cave <- cav(model,N,nbrepSigma=nbrepSigma,nbrepI=nbrepI,x=x)
+  sim<-simule(N=N,model,nbreps=nbreps,method=method,x=x)
   return(list(theta=theta,param=param,xi=xi,method=method,sim=sim,cave=cave))}
 
 simulation.summary<-function(table_data){
   lapply(table_data,function(l){
-    ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.")],l$cave["V"])
+    ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.")],V=l$cave$V$Sample)
     X<-do.call(rbind,
-            lapply(c("theta.bar","theta.ht","theta.hat","theta.full"),function(est){
+            lapply(c("Naive","Pseudo","Sample","Full"),function(est){
               do.call(data.frame,c(list(Estimator=est),
-                                   list("Mean"=as.array(list(ll$Mean[est][[1]]))),
-                                   list("% Relative Bias"=as.array(list(100*ll$Bias[est][[1]]/ll$Mean[est][[1]]))),
-                                   list("RMSE Ratio"=as.array(list(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["theta.hat"][[1]]))))),
-                                   list("Empirical Variance"=as.array(list(diag(as.matrix(ll$Variance[est][[1]]))))),
-                                   list("Asymptotic Variance"=as.array(list(diag(as.matrix(ll$V[est][[1]])))))))}))
+                                   list("Mean"=as.array(list(signig(ll$Mean[est][[1]],3)))),
+                                   list("% Relative Bias"=as.array(list(signig(100*ll$Bias[est][[1]]/ll$Mean[est][[1]],3)))),
+                                   list("RMSE Ratio"=as.array(list(signig(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["Sample"][[1]],3)))))),
+                                   list("Empirical Variance"=as.array(list(signig(diag(as.matrix(ll$Variance[est][[1]],3)))))),
+                                   list("Asymptotic Variance"=as.array(list(signig(diag(as.matrix(ll$V[est][[1]],3))))))))}))
     names(X)<-c("Estimator","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
     X})}    
 
