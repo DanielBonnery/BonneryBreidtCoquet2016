@@ -39,27 +39,27 @@ Output
 <tbody>
 <tr class="odd">
 <td align="left">theta.bar</td>
-<td align="left">1.32943</td>
-<td align="left">-200.8807</td>
-<td align="left">1406.214</td>
-<td align="left">8.664352e-06</td>
+<td align="left">1.333422</td>
+<td align="left">-199.9801</td>
+<td align="left">347.5041</td>
+<td align="left">2.189399e-05</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">theta.ht</td>
-<td align="left">4.070556</td>
-<td align="left">1.733317</td>
-<td align="left">6.650471</td>
-<td align="left">0.02875136</td>
+<td align="left">4.014403</td>
+<td align="left">0.3587772</td>
+<td align="left">1.558896</td>
+<td align="left">0.03169084</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">theta.hat</td>
-<td align="left">4.016571</td>
-<td align="left">0.4125647</td>
+<td align="left">4.006796</td>
+<td align="left">0.1696069</td>
 <td align="left">1</td>
-<td align="left">0.004797144</td>
-<td align="left">1</td>
+<td align="left">0.02041591</td>
+<td align="left">133470.7</td>
 </tr>
 <tr class="even">
 <td align="left">theta.full</td>
@@ -86,27 +86,27 @@ Output
 <tbody>
 <tr class="odd">
 <td align="left">theta.bar</td>
-<td align="left">1.32927</td>
-<td align="left">-200.9171</td>
-<td align="left">116.1432</td>
-<td align="left">1.852971e-05</td>
+<td align="left">1.333391</td>
+<td align="left">-199.9871</td>
+<td align="left">135.3538</td>
+<td align="left">2.301469e-05</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">theta.ht</td>
-<td align="left">4.005045</td>
-<td align="left">0.1259766</td>
-<td align="left">1.700214</td>
-<td align="left">0.1043915</td>
+<td align="left">4.043793</td>
+<td align="left">1.08298</td>
+<td align="left">2.07893</td>
+<td align="left">0.107299</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">theta.hat</td>
-<td align="left">4.098965</td>
-<td align="left">2.414393</td>
+<td align="left">4.010812</td>
+<td align="left">0.2695632</td>
 <td align="left">1</td>
-<td align="left">0.05161991</td>
-<td align="left">1</td>
+<td align="left">0.05241823</td>
+<td align="left">263102.7</td>
 </tr>
 <tr class="even">
 <td align="left">theta.full</td>
@@ -133,27 +133,27 @@ Output
 <tbody>
 <tr class="odd">
 <td align="left">theta.bar</td>
-<td align="left">1.331841</td>
-<td align="left">-200.3361</td>
-<td align="left">419.8108</td>
-<td align="left">3.010852e-05</td>
+<td align="left">1.333192</td>
+<td align="left">-200.0317</td>
+<td align="left">92.73737</td>
+<td align="left">2.263686e-05</td>
 <td align="left">NA</td>
 </tr>
 <tr class="even">
 <td align="left">theta.ht</td>
-<td align="left">4.064297</td>
-<td align="left">1.581987</td>
-<td align="left">7.594252</td>
-<td align="left">0.1246484</td>
+<td align="left">4.051705</td>
+<td align="left">1.276134</td>
+<td align="left">1.830045</td>
+<td align="left">0.1376699</td>
 <td align="left">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">theta.hat</td>
-<td align="left">4.1252</td>
-<td align="left">3.035004</td>
+<td align="left">4.015815</td>
+<td align="left">0.3938151</td>
 <td align="left">1</td>
-<td align="left">0.001282842</td>
-<td align="left">1</td>
+<td align="left">0.07643834</td>
+<td align="left">403041.5</td>
 </tr>
 <tr class="even">
 <td align="left">theta.full</td>
