@@ -292,6 +292,7 @@ Pseudo<-c(mean(mu_HT), 100*mean(mu_HT-Mu)/Mu, mean((mu_HT-Mu)^2)/mean((mu_SMLE-M
 Sample<-c(mean(mu_SMLE), 100*mean(mu_SMLE-Mu)/Mu, mean((mu_SMLE-Mu)^2)/mean((mu_SMLE-Mu)^2),var(mu_SMLE),mean(var_mu_SMLE),mean(var_mu_SMLE)/var(mu_SMLE))
 
 out_st<-rbind(Naive,Pseudo,Sample)
-table3<-rbind(out_un,out_st)
+table3<-rbind(cbind(Selection="Unstratified",rownames(out_un),out_un),
+              cbind(Selection="Stratified",rownames(out_st),out_st))
 colnames(table3)<-c("Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Average Estimated Variance","Variance Ratio")
 round(table3,3)

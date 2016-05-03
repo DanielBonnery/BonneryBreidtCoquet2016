@@ -17,15 +17,6 @@ Execute in R:
     demo(table1)
     demo(table2)
     demo(table3)
-    library(knitr)
-    kable(table3)
-
-    library(pubBonneryBreidtCoquet2016)
-    #data(table1)
-    data(table3)
-    library(knitr)
-    #kable(table1)
-    kable(table3)
 
 <table>
 <thead>
