@@ -1,4 +1,3 @@
-#library(pubBonneryBreidtCoquet2016)
 library(survey)
 data(birth)
 # Gestational age.

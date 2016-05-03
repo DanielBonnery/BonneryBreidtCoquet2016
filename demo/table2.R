@@ -1,6 +1,5 @@
 ########################################################
-##5.2.3. stratification et covariables
-########################################################
+## stratification et covariables
 ########################################################
 set.seed(1)#NB: the seed was not set for the table in the publication
 popmodelfunction<-model.dep.strat2;
