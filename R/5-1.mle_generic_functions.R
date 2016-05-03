@@ -143,13 +143,13 @@ calcule.Sigma<-function(model,N,nbrepSigma=1000){
   return(N *model$tau*
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
-                    function(){
-                      y=model$rloiy.x(x,N)#generates y conditionnally to x
-                      z=model$rloiz(y)# generates z conditionnally to x and y
-                      s <- model$Scheme$S(z);# draws the sample
-                      pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
-                      return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi),
-                                         model$xihatfunc1(as.matrix(y)[s,],z[s],pi[s])),2,mean))}),
+                         function(){
+                           y=model$rloiy.x(x,N)#generates y conditionnally to x
+                           z=model$rloiz(y)# generates z conditionnally to x and y
+                           s <- model$Scheme$S(z);# draws the sample
+                           pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
+                           return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi),
+                                              model$xihatfunc1(as.matrix(y)[s,],z[s],pi[s])),2,mean))}),
              1,function(u){c(u[1:length(model$theta)],model$xihatfunc2(u[length(model$theta)+length(model$xi)+(1:model$xihatfuncdim)]))})))}
 
 calculeV<-function(Sigma,Im,dimtheta){  
@@ -172,7 +172,7 @@ cav<-function(model,N,nbrepSigma=300,nbrepI=300){
   Im <- Imatrix9(N,model)
   dimtheta<-length(model$theta);
   V123<-calculeV(Sigma,Im,dimtheta)
-  V<-list(theta.bar=V123$V/(N*model$tau),theta.ht=NA,theta.bar=NA)
+  V<-list(theta.hat=V123$V/(N*model$tau),theta.ht=NA,theta.bar=NA)
   return(list(Sigma=Sigma,Im=Im,V=V,
               V1=V123$V1/(N*model$tau),V2=V123$V2/(N*model$tau),V3=V123$V3/(N*model$tau)))}
 
@@ -182,16 +182,16 @@ fullMLE<-function(y,z,s,model,method="nlm"){
   if(is.vector(y)){ys<-y[s]}
   if(is.matrix(y)){ys<-y[s,]}
   if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
-                 fn =full.likelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}
+                                                    fn =full.likelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}
 
 sampleMLE<-function(y,z,s,model,method="nlm"){
   if(is.vector(y)){ys<-y[s]}
   if(is.matrix(y)){ys<-y[s,]}
   xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
   thetahat<-unlist(optimx::optimx(model$theta,
-                            fn=sample.likelihood,method=method,
-                            control=list(maximize=TRUE),
-                            y=ys,model=model,xi=xihat))[1:length(model$theta)]
+                                  fn=sample.likelihood,method=method,
+                                  control=list(maximize=TRUE),
+                                  y=ys,model=model,xi=xihat))[1:length(model$theta)]
   return(thetahat)}
 
 #6. Simulation procedure
@@ -216,24 +216,26 @@ simule<-function(N,model,nbreps=300,method="nlm"){
   #initialization : those vectors will contain the values of the 
   Xg<-rloix(N);
   Estim <- plyr::rlply(nbreps,
-    (function(){
-      #Population generation and sample selection
-      Yg<-cbind(Xg,rloiy.x(X,N));  #Y generation
-      Zg<-rloiz(Yg); #Z generation
-      Sg<-S(Zg);     #sample selection
-      Pikg<-Pik(Zg)
-      return(list(xi.hat   =xihat     (Yg,Zg,Sg,Pikg),
-                  theta.ht =thetaht   (Yg,Zg,Sg,Pikg),
-                  theta.bar=thetaniais(Yg,Zg,Sg),
-                  thetaxi.full=fullMLE(Yg,Zg,Sg,model,method),
-                  theta.hat=sampleMLE(Yg,Zg,Sg,model,method)))})())
+                       (function(){
+                         #Population generation and sample selection
+                         Yg<-cbind(Xg,rloiy.x(X,N));  #Y generation
+                         Zg<-rloiz(Yg); #Z generation
+                         Sg<-S(Zg);     #sample selection
+                         Pikg<-Pik(Zg)
+                         thetaxi.full=fullMLE(Yg,Zg,Sg,model,method)
+                         return(list(xi.hat   =xihat     (Yg,Zg,Sg,Pikg),
+                                     theta.ht =thetaht   (Yg,Zg,Sg,Pikg),
+                                     theta.bar=thetaniais(Yg,Zg,Sg),
+                                     theta.hat=sampleMLE(Yg,Zg,Sg,model,method),
+                                     xi.full=thetaxi.full[length(model$theta)+(1:length(model$xi))],
+                                     theta.full=thetaxi.full[1:length(model$theta)]))})())
   noms<-names(Estim[[1]])
   Estim<-lapply(as.list(noms),function(nom){plyr::laply(Estim,function(ll){ll[[nom]]})})
   names(Estim)<-noms
   attach(Estim)
   Var<-lapply(Estim,var)
   M=lapply(Estim,function(est){apply(as.matrix(est),2,mean)})
-  E=list(model$xi,model$theta,model$theta,model$theta,model$theta)
+  E=list(model$xi,model$theta,model$theta,model$theta,model$xi,model$theta)
   names(E)<-names(M)
   Bias=lapply(as.list(noms),function(x){M[[x]]-E[[x]]})
   names(Bias)<-names(M)
@@ -242,25 +244,25 @@ simule<-function(N,model,nbreps=300,method="nlm"){
   return(list(
     model=model,
     Estim=Estim,
-    Var=Var,
-    M=M,
+    Variance=Var,
+    Mean=M,
     Bias=Bias,
-    MSE=MSE))}
+    "M.S.E."=MSE))}
 
 ##2. Function that displays a number 
 #    for display of nice numbes in output tex tables)
 affiche<-function(X){
   textee<-sapply(X,function(x){
     if(is.character(x)){af=x}else{
-    af<-"";
-    if (is.na(x)){af<-" "}
-    if(!is.na(x)){
-      if (length(x)>0){
-        puis2<-floor(log(abs(x))/log(10));
-        puis<-floor(log(abs(x))/log(10^3));if (puis2>-3 &&puis2<3){puis=0};
-        af<-paste("",signif(10^(-3*puis)*x,3),"\\ 10^{",3*puis,"}");
-        if(puis>=0&puis<3){af<-paste("",signif(x,3),sep='')}
-        if(x==0){af="0"}}}}
+      af<-"";
+      if (is.na(x)){af<-" "}
+      if(!is.na(x)){
+        if (length(x)>0){
+          puis2<-floor(log(abs(x))/log(10));
+          puis<-floor(log(abs(x))/log(10^3));if (puis2>-3 &&puis2<3){puis=0};
+          af<-paste("",signif(10^(-3*puis)*x,3),"\\ 10^{",3*puis,"}");
+          if(puis>=0&puis<3){af<-paste("",signif(x,3),sep='')}
+          if(x==0){af="0"}}}}
     return(af)})
   aff<-textee
   if(is.matrix(X)&&length(X[,1])+length(X[1,])>2){aff<-affmatrix(matrix(textee,length(X[1,]),length(X[,1])),X)}
@@ -286,10 +288,10 @@ affvector<-function(textee){
 ##    procedure that launches simulations and produces an output:
 ##    a tex code for a table containing the results of simulation
 
-Simulation_data<-function(nbreps,popmodelfunction,sampleparam,N,theta,xi,param,method="nlm"){
+Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,param,method="nlm",nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(sampleparam,theta,xi,param)
-  cave <- cav(model,N,nbrepSigma=1000,nbrepI=3000)
-  sim<-simule(N=N,model,nbreps=3000,method=method)
+  cave <- cav(model,N,nbrepSigma=nbrepSigma,nbrepI=nbrepI)
+  sim<-simule(N=N,model,nbreps=nbreps,method=method)
   return(list(theta=theta,param=param,xi=xi,method=method,sim=sim,cave=cave))}
 
 
@@ -309,7 +311,7 @@ generetableau<-function(simulation_data,nomparam="",fic=NULL,directory="."){
               \\begin{tabular}{",struct,"}",sep=''),file=filee,append=F)
   write("\\hline",file=filee,append=T)
   write(paste0("$\\","theta$&",
-              "$\\","xi$&",nomparam,"&Estimator
+               "$\\","xi$&",nomparam,"&Estimator
       &Mean[.]
       &Biais[.]
       &Empirical variance[.]
@@ -353,20 +355,16 @@ Verifvar<-function(model,N,method){
 }
 
 simulation.summary<-function(table_data){
-  tablex<-lapply(table_data,function(l){
-    ll<-c(l$sim[c("M","Bias","Var","MSE")],l$cave["V"])
-    do.call(
-      lapply(c("theta.bar","theta.hat","theta.ht"),function(est){
-        do.call(data.frame,lapply(ll,function(lll){as.array(list(lll[est]))}))}),rbind)})
-  names(tablex)<-c(
-    "Estimator",
-    "Mean",
-    "Biais",
-    "Empirical variance",
-    "Empirical M.S.E",
-    "Relative Empirical MSE",
-    "Asymptotic variance")
-  tablex}
+  lapply(table_data,function(l){
+    ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.")],l$cave["V"])
+    do.call(rbind,
+        lapply(c("theta.bar","theta.ht","theta.hat","theta.full"),function(est){
+          do.call(data.frame,c(list(Estimator=est),
+                               lapply(ll,function(lll){as.array(list(lll[est]))}),
+                               list("Relative Variance"=as.array(list(
+                                 diag(ll$Variance[est],nrow=(if(is.matrix(ll$Variance[est])){nrow(ll$Variance[est])}else{1}))/
+                                   diag(ll$Variance["theta.hat"],nrow=(if(is.matrix(ll$Variance[est])){nrow(ll$Variance[est])}else{1})))))))}))
+    })}
 
 
-  
+

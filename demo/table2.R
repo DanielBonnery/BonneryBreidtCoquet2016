@@ -10,10 +10,8 @@ theta=c(.5,1,2);xi=2;EX=1;SX=1
 Param<-list(list(sigma=.1,EX=EX,SX=SX),
             list(sigma=1 ,EX=EX,SX=SX),
             list(sigma=10,EX=EX,SX=SX));
-#Simulation parameters
-nbreps<-1000;
 #Simulation
-table2_data<-lapply(Param,function(param){Simulation_data(nbreps,popmodelfunction,sampleparam,N,theta,xi,param)})
+table2_data<-lapply(Param,function(param){Simulation_data(popmodelfunction,sampleparam,N,theta,xi,param)})
 table2<-lapply(table2_data,simulation.summary())
 
 
