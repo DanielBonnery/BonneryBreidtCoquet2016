@@ -364,7 +364,7 @@ simulation.summary<-function(table_data){
                                list("% Relative Bias"=as.array(list(100*ll$Bias[est][[1]]/ll$Mean[est][[1]]))),
                                list("RMSE Ratio"=as.array(list(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["theta.hat"][[1]]))))),
                                list("Empirical Variance"=as.array(list(diag(as.matrix(ll$Variance[est][[1]]))))),
-                               list("Asymptotic Variance"=as.array(list(diag(as.matrix(ll$V[est][[1]]))/diag(as.matrix(ll$V["theta.hat"][[1]])))))))}))
+                               list("Asymptotic Variance"=as.array(list(diag(as.matrix(ll$V[est][[1]])))))))}))
     })}
 
 
