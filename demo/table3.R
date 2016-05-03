@@ -294,5 +294,5 @@ Sample<-c(mean(mu_SMLE), 100*mean(mu_SMLE-Mu)/Mu, mean((mu_SMLE-Mu)^2)/mean((mu_
 out_st<-rbind(Naive,Pseudo,Sample)
 table3<-rbind(cbind(Selection="Unstratified",rownames(out_un),out_un),
               cbind(Selection="Stratified",rownames(out_st),out_st))
-colnames(table3)<-c("Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Average Estimated Variance","Variance Ratio")
+colnames(table3)<-c("Selection","Estimator","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Average Estimated Variance","Variance Ratio")
 round(table3,3)
