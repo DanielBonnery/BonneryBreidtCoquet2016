@@ -43,44 +43,68 @@ Deriveloglikethetaxi2 <-function(y,model,theta,xi){
 RhoDeriveloglikethetaxi2<-function(y,model,theta,xi){
   if(is.vector(y)){return(deriveloglikethetaxi2(y,model=model,theta,xi))} 
   if(is.matrix(y)){
-    return(array(unlist(lapply(lapply(seq_len(length(y[,1])),function(i){y [i,]}),
-                               rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi)),
-                 dim=c(4,4,length(y[,1]))))}}   
+    return(plyr::aaply(y,1,rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi))}}   
 ## Computation of information matrices
-Imatrix<-function(N,model,nbrepI=300){#3 minutes for n=30
+Imatrix1<-function(N,model,nbrepI=300,x=NULL){#3 minutes for n=30
   x <- model$rloix(N)
-  return(apply(array(unlist(lapply(1:nbrepI,
-                                   function(i){
-                                     y<-model$rloiy.x(xrep,N)
-                                     dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
-                                     rhorho=model$rhothetaxi(y,model$theta,model$xi)
-                                     return(t(dd)%*%(dd*rhorho)/N)})),
-                     dim=c(4,4,nbrepI)),
-               c(1,2),
-               mean))}
+  xx<-plyr::raply(nbrepI,
+                  function(i){
+                    y<-model$rloiy.x(xrep,N)
+                    dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
+                    rhorho=model$rhothetaxi(y,model$theta,model$xi)
+                    return(t(dd)%*%(dd*rhorho)/N)})
+  return(apply(xx,2:length(dim(xx)),mean))}
 #compute the information matrix in different ways
-Imatrix2<-function(N,model,nbrepI=300){#very long, 9 minutes for n=30
-  x <- rloix(N)
+Imatrix2<-function(N,model,nbrepI=300,x=NULL){
+  if(is.null(x)){x<-model$rloix(N)}
   xrep<-rep(x,nbrepI);
   nrep=length(xrep)
-  y<-cbind(xrep,rloiy.x(xrep,N))
-  return( -apply(RhoDeriveloglikethetaxi2(y,model,theta,xi),c(1,2),mean))}
+  y<-cbind(xrep,model$rloiy.x(xrep,N))
+  xxx=RhoDeriveloglikethetaxi2(y,model,theta,xi)
+  return( -apply(xxx,2:length(dim(xxx)),mean))}
 
-Imatrix3<-function(N,model,nbrepI=300){
-  x <- rloix(N)
+Imatrix3<-function(N,model,nbrepI=300,x=NULL){
+  if(is.null(x)){x<-model$rloix(N)}
   xrep<-rep(x,nbrepI);
   nrep=length(xrep)
-  y<-cbind(xrep,rloiy.x(xrep,N))
+  y<-cbind(xrep,model$rloiy.x(xrep,N))
   dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
   rhorho=model$rhothetaxi(y,model$theta,model$xi)
   return(t(dd)%*%(dd*rhorho)/nrep)}
 
-Imatrix6<-function(N,model,nbrepI=300){
-  x <- rloix(N)
+Imatrix4<-function(N,model,nbrepI=300,x=NULL){
+  if(is.null(x)){x<-model$rloix(N)}
+  xrep<-rep(x,nbrepI)
+  y<-cbind(xrep,model$rloiy.x(xrep,N))
+  s<-model$Scheme$S(model$rloiz(y)) #draw a sample
+  return( -apply(Deriveloglikethetaxi2(y[s,],model,theta,xi),c(1,2),mean))}
+
+Imatrix5<-function(N,model,nbrepI=300,x=NULL){
+  if(is.null(x)){x<-model$rloix(N)}
+  return(apply(array(
+    unlist(
+      lapply(seq_len(nbrepI),
+             function(i){
+               y<-cbind(x,model$rloiy.x(x,N))
+               s<-model$Scheme$S(model$rloiz(y)) 
+               return( -apply(Deriveloglikethetaxi2(y[s,],model,theta,xi),c(1,2),mean))})),
+    dim=c(4,4,nbrepI)),
+    c(1,2),mean))}
+
+Imatrix6<-function(N,model,nbrepI=300,x=NULL){
+  if(is.null(x)){x<-model$rloix(N)}
   xrep<-rep(x,nbrepI);
-  y<-cbind(xrep,rloiy.x(xrep,N))
-  s<-Scheme$S(rloiz(y))
+  y<-cbind(xrep,model$rloiy.x(xrep,N))
+  s<-model$Scheme$S(model$rloiz(y))
   nrep=length(s)
+  dd<-Deriveloglikethetaxi(y[s,],model,theta,xi)
+  return(t(dd)%*%(dd)/nrep)}
+
+Imatrix7<-function(N,model,nbrepI=300,x=NULL){
+  if(is.null(x)){x<-model$rloix(N)}
+  xrep<-rep(x,nbrepI);
+  y<-cbind(xrep,model$rloiy.x(xrep,N))
+  s<-model$Scheme$S(model$rloiz(y))
   dd<-Deriveloglikethetaxi(y[s,],model,theta,xi)
   return(t(dd)%*%(dd)/nrep)}
 
@@ -88,7 +112,7 @@ Imatrix6<-function(N,model,nbrepI=300){
 Imatrix9<-function(N,model,nbrepI=3000,x=NULL){
   if(is.null(x)){x<-model$rloix(N)}
   xrep<-rep(x,nbrepI);
-  y<-model$rloiy.x(xrep,N)
+  y<-cbind(xrep,model$rloiy.x(xrep,N))
   dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
   rhorho <- model$rhothetaxi(y,model$theta,model$xi)*model$rhoxthetaxi(xrep,model$theta,model$xi)
   return(t(dd)%*%(dd*rhorho)/(N*nbrepI))}
@@ -96,43 +120,22 @@ Imatrix9<-function(N,model,nbrepI=3000,x=NULL){
 
 
 
-Imatrix7<-function(N,model,nbrepI=300){
-  x <- rloix(N)
-  xrep<-rep(x,nbrepI);
-  y<-cbind(xrep,rloiy.x(xrep,N))
-  nrep=length(s)
-  s<-Scheme$S(rloiz(y))
-  dd<-Deriveloglikethetaxi(y[s,],model,theta,xi)
-  return(t(dd)%*%(dd)/nrep)}
-
-Imatrix4<-function(N,model,nbrepI=300){#very slow
-  x <- rloix(N)
-  xrep<-rep(x,nbrepI)
-  y<-cbind(xrep,rloiy.x(xrep,N))
-  s<-Scheme$S(rloiz(y)) #draw a sample
-  return( -apply(Deriveloglikethetaxi2(y[s,],model,theta,xi),c(1,2),mean))}
-
-Imatrix5<-function(N,model,nbrepI=300){#very quick, different
-  x <- rloix(N)
-  return(apply(array(
-    unlist(
-      lapply(seq_len(nbrepI),
-             function(i){
-               y<-cbind(x,rloiy.x(x,N))
-               s<-Scheme$S(rloiz(y)) 
-               return( -apply(Deriveloglikethetaxi2(y[s,],model,theta,xi),c(1,2),mean))})),
-    dim=c(4,4,nbrepI)),
-    c(1,2),mean))}
-
 if(FALSE){
   N<-5000;nbrepI=300
-  
-  system.time(I1 <- Imatrix(N,model,nbrepI));#user 25 s
-  system.time(I2 <- Imatrix2(N,model,nbrepI=300));#user :14060
-  system.time(I3 <- Imatrix3(N,model,nbrepI));#user 18s
-  system.time(I4 <- Imatrix4(N,model,nbrepI=300));#user 12950
-  system.time(I5 <- Imatrix5(N,model,nbrepI))#user 750
-  lapply(paste("I",1:5,sep=""),get);
+  x <- model$rloix(N)
+  compare<-sapply(sapply(paste("Imatrix",c(1:7,9),sep=""),get),function(x){
+    try(timex<-system.time(I<- Imatrix1(N,model,nbrepI,x=x)))
+    list(time=timex,I=I)    
+  })
+  system.time(I1 <- Imatrix1(N,model,nbrepI,x=x));#user 10.47 s
+  system.time(I2 <- Imatrix2(N,model,nbrepI=300,x=x));#user :3.804
+  system.time(I3 <- Imatrix3(N,model,nbrepI,x=x));#user 
+  system.time(I4 <- Imatrix4(N,model,nbrepI=300,x=x));#user
+  system.time(I5 <- Imatrix5(N,model,nbrepI,x=x))#user 
+  system.time(I6 <- Imatrix6(N,model,nbrepI,x=x));#user 0.012
+  system.time(I7 <- Imatrix7(N,model,nbrepI=300,x=x));#user 0.012
+  system.time(I9 <- Imatrix9(N,model,nbrepI=300,x=x));#user 0.052
+  lapply(paste("I",c(1:3,6,7,9),sep=""),get);
 }
 
 
@@ -142,13 +145,14 @@ calcule.Sigma<-function(model,N,nbrepSigma=1000,x=NULL){
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
                          function(){
-                           y=model$rloiy.x(x,N)#generates y conditionnally to x
-                           z=model$rloiz(y)# generates z conditionnally to x and y
-                           s <- model$Scheme$S(z);# draws the sample
+                           y=model$rloiy.x(x,N)   #generates y conditionnally to x
+                           z=model$rloiz(y)       #generates z conditionnally to x and y
+                           s <- model$Scheme$S(z);#draws the sample
                            pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
                            return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi),
                                               model$xihatfunc1(as.matrix(y)[s,],z[s],pi[s])),2,mean))}),
-             1,function(u){c(u[1:length(model$theta)],model$xihatfunc2(u[length(model$theta)+length(model$xi)+(1:model$xihatfuncdim)]))})))}
+             1,function(u){c(u[1:length(model$theta)],
+                             model$xihatfunc2(u[length(model$theta)+length(model$xi)+(1:model$xihatfuncdim)]))})))}
 
 calculeV<-function(Sigma,Im,dimtheta){  
   dimxi<-length(Sigma[1,])-dimtheta
@@ -168,7 +172,7 @@ calculeV<-function(Sigma,Im,dimtheta){
 cav<-function(model,N,nbrepSigma=300,nbrepI=300,x=NULL){
   if(is.null(x)){x <- model$rloix(N)}
   Sigma <- calcule.Sigma(model,N,nbrepSigma,x=x)
-  Im <- Imatrix9(N,model,x=x)
+  Im <- Imatrix7(N,model,x=x)
   dimtheta<-length(model$theta);
   V123<-calculeV(Sigma,Im,dimtheta)
   V<-list(Sample=V123$V/(N*model$tau),Pseudo=NA,Naive=NA,Full=NA)
