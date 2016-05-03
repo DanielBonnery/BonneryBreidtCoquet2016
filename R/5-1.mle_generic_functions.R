@@ -106,7 +106,7 @@ Imatrix7<-function(N,model,nbrepI=300,x=NULL){
   y<-cbind(xrep,model$rloiy.x(xrep,N))
   s<-model$Scheme$S(model$rloiz(y))
   dd<-Deriveloglikethetaxi(y[s,],model,model$theta,model$xi)
-  return(t(dd)%*%(dd)/nrep)}
+  return(t(dd)%*%(dd)/nrow(dd))}
 
 
 Imatrix9<-function(N,model,nbrepI=3000,x=NULL){
