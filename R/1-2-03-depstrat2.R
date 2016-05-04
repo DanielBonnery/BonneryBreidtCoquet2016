@@ -74,8 +74,8 @@ model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
   #__________________________________________________________________________
   # objects related to estimation
   #__________________________________________________________________________
-   xihat=function(y,z,s){
-      pik<-StratS(sampleparam)$Pik(z); #inclusion probabilities
+   xihat=function(y,z,s,pik=NULL){
+      if(is.null(pik)){pik<-StratS(sampleparam)$Pik(z)}; #inclusion probabilities
       s.zy<-sum((z*y[,2]/pik)[s]) #HT estimator of $\sum_{k=1}^N Y_k Z_k$
       s.y2<-sum((y[,2]^2/pik)[s])  #HT estimator of $\sum_{k=1}^N Y_k^2$
       xi.hat<-(s.zy)/(s.y2)    #estimator of $xi$}

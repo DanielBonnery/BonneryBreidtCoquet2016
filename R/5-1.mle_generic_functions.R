@@ -230,7 +230,7 @@ simule<-function(N,model,nbreps=300,method=list(Sample="nlm",Pseudo="nlm",Naive=
   Estim <- plyr::rlply(nbreps,
                        (function(){
                          #Population generation and sample selection
-                         Yg<-cbind(Xg,rloiy.x(X,N));  #Y generation
+                         Yg<-cbind(Xg,rloiy.x(Xg,N));  #Y generation
                          Zg<-rloiz(Yg); #Z generation
                          Sg<-S(Zg);     #sample selection
                          Pikg<-Pik(Zg)
