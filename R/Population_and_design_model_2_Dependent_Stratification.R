@@ -1,24 +1,17 @@
-model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
-                           theta=c(.5,1,1),
-                           xi=2,
-                           param=list(sigma=1,EX=1,SX=1)){
+model.dep.strat2<-function(
+  sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
+  theta=c(.5,1,1),
+  xi=2,
+  conditionalto=list(sigma=1,EX=1,SX=1)){
   #for simplicity of notation
-  proph<-sampleparam$proph
-  tauh <-sampleparam$tauh
-  sigma<-param$sigma
-  EX   <-param$EX
-  SX   <-param$SX
-
+  attach(sampleparam)
+  attach(conditionalto)
   ##__________________________________________________________________________
   ## objects related to population generation
   ##__________________________________________________________________________
-    rloix <- function(N){qnorm((1:N)/(N+1),EX,SX)}
-    rloiy.x <- function(x,...){
-      return(cbind(x,rnorm(x,mean=theta[1]+theta[2]*x,sd=theta[3])))}
-    rloiy <- function(N){
-      x=rloix(N);
-      y<-cbind(x,rloiy.x(x))
-      return(cbind(x,y))}
+  rloiy <- function(N,.conditionalto=conditionalto){
+    x=qnorm((1:N)/(N+1),.conditionalto$EX,.conditionalto$SX);
+      cbind(x,rnorm(x,mean=theta[1]+theta[2]*x,sd=theta[3]))}
    rloiz=function(y){rnorm(y[,2],mean=xi*y[,2],sd=sigma)}
   ##__________________________________________________________________________
   ## objects related to sampling frame and sample
@@ -56,8 +49,7 @@ model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
       return(rhorho1/rhorho2)}
   #Computation of rho function (function of y)
   rho=function(y){return(rhothetaxi(y,theta,xi))}
-  rhoxthetaxi=function(x,theta,xi){
-      if(is.matrix(x)){x<-x[,1]}
+  rhoxthetaxi=function(y,theta,xi){
       #Initialisation of numerator and deniminator
       rhorho1<-tauh[length(tauh)]; 
         rhorho2<-sum(tauh*proph);
@@ -66,10 +58,10 @@ model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
       zetah=sqrt(xi^2*theta[2]^2*SX^2+ xi^2*theta[3]^2+sigma^2)*Zetah+xi*theta[1]+xi*theta[2]*EX
       #Computation of numerator and deniminator
       for(h in 1:(length(tauh)-1)){
-        rhorho1<-rhorho1+(tauh[h]-tauh[h+1])*pnorm((zetah[h]-xi*(theta[1]+theta[2]*x))/sqrt(sigma^2+xi^2*theta[3]^2));}
+        rhorho1<-rhorho1+(tauh[h]-tauh[h+1])*pnorm((zetah[h]-xi*(theta[1]+theta[2]*
+                                                                   if(is.matrix(y)){y[,1]}else{y[1]}))/sqrt(sigma^2+xi^2*theta[3]^2));}
       return(rhorho1/rhorho2)}
   #Computation of rho function (function of y)
-  rho.x=function(x){return(rhoxthetaxi(x,theta,xi))}
   
   #__________________________________________________________________________
   # objects related to estimation
@@ -100,7 +92,7 @@ model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
         
   return(list(
     #returns the entries of the function
-    sampleparam=sampleparam,theta=theta,xi=xi,param=param,
+    sampleparam=sampleparam,theta=theta,xi=xi,conditionalto=conditionalto,
     #returns the function that will generate the population give a population size N
     rloix=rloix,
     rloiy=rloiy,
@@ -118,7 +110,6 @@ model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
     Scheme=Scheme,
     rho=rho,
     rhothetaxi=rhothetaxi,
-    rho.x=rho.x,
     rhoxthetaxi=rhoxthetaxi,
     vinf=function(y){tau*rho(y)-(tau*rho(y))^2},
     En=En,

@@ -1,5 +1,5 @@
 #2.1. Pareto distribution
-model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
+model.Pareto.bernstrat<-function(sampleparam,theta,xi,conditionalto){
     #sampleparam is a list with tauh
   tauh<-sampleparam$tauh
   calculeSigma<-function(){
@@ -37,21 +37,17 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
   Sigma<-calculeSigma()
   I11formula<--(((tauh[2]-tauh[1])*xi)/((theta+xi)*(tauh[2]*theta+tauh[1]*xi))*(1/(theta+xi)+tauh[2]/(tauh[2]*theta+tauh[1]*xi))-1/theta^2);
   I12formula<--((tauh[2]-tauh[1])*((tauh[1]*xi)/(tauh[2]*theta+tauh[1]*xi)+xi/(theta+xi)-1))/((theta+xi)*(tauh[2]*theta+tauh[1]*xi));
-  rloiy=function(N){exp(-log(1-runif(N))/theta)}
-  rloiy.x=function(x=NULL,N){rloiy(N)}
+  rloiy=function(N,conditionalto=NULL){exp(-log(1-runif(N))/theta)}
   rloiz=function(y){rbinom(length(y),size=1,prob=1/y^xi)}
   return(
   list(
    theta=theta,
     xi=xi,
-     param=param,
+     conditionalto=conditionalto,
     rloiy=rloiy,
   ploi=function(y){pploi<-function(y){(y>=1)*(1-(1/max(y,1)^theta))}
                    return(sapply(y,pploi))},
   ploilim=function(y){1-1/pgamma(y,3/2,2)},
-  rloix=function(N){NULL},
-  rloiy.x=rloiy.x,
-  rloixy.x=function(x){cbind(x,rloiy.x(x,N))},
   rloiz=rloiz,
   dloi=function(y){theta/(y^(theta+1))},
   dloitheta=function(y,theta){theta/(y^(theta+1))},
@@ -97,5 +93,4 @@ model.Pareto.bernstrat<-function(sampleparam,theta,xi,param){
       +(tauh[2]^(-1)-1)^2*tauh[2]+(1-tauh[2])*(xi+theta-2)^(-1)*theta
     		+(-(2-theta)^(-1)*theta-(1-theta)^(-2)*theta^(2)))*(theta-1)^(4),
   Vniais=NULL,
-  supportY=c(-.1,2.1)))
-  }
+  supportY=c(-.1,2.1)))}
