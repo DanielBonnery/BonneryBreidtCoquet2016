@@ -1,7 +1,7 @@
 #2.1. Pareto distribution
-model.Pareto.bernstrat<-function(sampleparam,theta,xi,conditionalto){
+model.Pareto.bernstrat<-function(sampleparam=list(tauh=c(.1,.5)),theta=1,xi=1,conditionalto=NULL){
     #sampleparam is a list with tauh
-  tauh<-sampleparam$tauh
+    attach(sampleparam)
   calculeSigma<-function(){
     Sigma<-matrix(0,2,2)
     # Check that Taylor deviates have mean zero, and compute their second moment.

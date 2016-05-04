@@ -45,6 +45,13 @@ RhoDeriveloglikethetaxi2<-function(y,model,theta,xi){
   if(is.matrix(y)){
     return(plyr::aaply(y,1,rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi))}}   
 ## Computation of information matrices
+
+Imatrix<-function(N,model,nbrepI=300,methodIm="FirsDeriv"){
+if(methodIm=="formula"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
+  if(methodIm=="FirstDeriv"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
+  
+}
+
 Imatrix1<-function(N,model,nbrepI=300){#3 minutes for n=30
   xx<-plyr::raply(nbrepI,
                   (function(){
