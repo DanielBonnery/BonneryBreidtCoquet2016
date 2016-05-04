@@ -3,7 +3,6 @@ model.Pareto.bernstrat<-function(sampleparam=list(tauh=c(.1,.5)),theta=1,xi=1,co
     #sampleparam is a list with tauh
     attach(sampleparam)
   calculeSigma<-function(){
-    Sigma<-matrix(0,2,2)
     # Check that Taylor deviates have mean zero, and compute their second moment.
     E_I<-tauh[1]+(tauh[2]-tauh[1])*theta/(theta+xi)
     E_Z<-theta/(theta+xi)
@@ -25,12 +24,10 @@ model.Pareto.bernstrat<-function(sampleparam=list(tauh=c(.1,.5)),theta=1,xi=1,co
     alpha_3<- (E_Y/E_YZ)*(E_Y-E_YZ)/(E_Y-1)^2
     E_taylor_dev<-alpha_1*E_Y+alpha_2*E_YZ+alpha_3
     E_taylor_dev_squared<-alpha_1^2*E_Y2_pi+2*alpha_1*alpha_2*E_Y2Z_pi+2*alpha_1*alpha_3*E_Y_pi+alpha_2^2*E_Y2Z_pi+2*alpha_2*alpha_3*E_YZ_pi+alpha_3^2*E_1_pi
-    #
     # Mean and variance of the Horvitz-Thompson plug-in estimator of xi
     Var_HT_xi<-E_taylor_dev_squared
-    Sigma[2,2]<-E_I*Var_HT_xi 
     Var_Mean_Score<-(1/(E_I)^2)*(E_logY2I-E_logYI^2/E_I)
-    Sigma[1,1]<-E_I*Var_Mean_Score
+    Sigma<-matrix(c(E_I*Var_Mean_Score,0,0,E_I*Var_HT_xi),2,2)
     return(Sigma)
   }
   tau<-tauh[1]+(tauh[2]-tauh[1])*theta/(theta+xi)
