@@ -187,15 +187,15 @@ fullMLE<-function(y,z,s,model,method="nlm"){
   if(method=="formula"){model$fullMLE(y,z,s)}else{
     if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
                                                       fn =full.likelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}}
-sampleMLE<-function(y,z,s,model,method="nlm"){
+sampleMLE<-function(y,z,s,model,method="nlm",xi.hat=NULL){
   if(method=="formula"){model$sampleMLE(y,z,s)}else{
     if(is.vector(y)){ys<-y[s]}
     if(is.matrix(y)){ys<-y[s,]}
-    xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
+    if(is.null(xi.hat)){xi.hat<-model$xihat(y,z,s,model$Scheme$Pik(z))}
     unlist(optimx::optimx(model$theta,
                           fn=sample.likelihood,method=method,
                           control=list(maximize=TRUE),
-                          y=ys,model=model,xi=xihat))[1:length(model$theta)]}}
+                          y=ys,model=model,xi=xi.hat))[1:length(model$theta)]}}
 pseudoMLE<-function(y,z,s,pi,model,method="nlm"){
   if(method=="formula"){model$sampleMLE(y,z,s)}else{
     if(is.vector(y)){ys<-y[s]}
@@ -235,10 +235,11 @@ simule<-function(N,model,nbreps=300,method=list(Sample="nlm",Pseudo="nlm",Naive=
                          Sg<-S(Zg);     #sample selection
                          Pikg<-Pik(Zg)
                          thetaxi.full=fullMLE(Yg,Zg,Sg,model,method)
-                         return(list(xi.hat   =xihat     (Yg,Zg,Sg,Pikg),
+                         xi.hat   =xihat     (Yg,Zg,Sg,Pikg)
+                         return(list(xi.hat   =xi.hat,
                                      Pseudo =thetaht   (Yg,Zg,Sg,Pikg),
                                      Naive=thetaniais(Yg,Zg,Sg),
-                                     Sample=sampleMLE(Yg,Zg,Sg,model,method),
+                                     Sample=sampleMLE(Yg,Zg,Sg,model,method,xi.hat=xi.hat),
                                      xi.full=thetaxi.full[length(model$theta)+(1:length(model$xi))],
                                      Full=thetaxi.full[1:length(model$theta)]))})())
   noms<-names(Estim[[1]])
@@ -267,7 +268,7 @@ Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,param,method="
   x<-model$rloix(N);
   cave <- cav(model,N,nbrepSigma=nbrepSigma,nbrepI=nbrepI,x=x)
   sim<-simule(N=N,model,nbreps=nbreps,method=method,x=x)
-  return(list(theta=theta,param=param,xi=xi,method=method,sim=sim,cave=cave))}
+  return(list(theta=theta,param=param,xi=xi,method=method,sim=sim,cave=cave,model=model))}
 
 simulation.summary<-function(table_data){
   lapply(table_data,function(l){
@@ -275,12 +276,16 @@ simulation.summary<-function(table_data){
     X<-do.call(rbind,
             lapply(c("Naive","Pseudo","Sample","Full"),function(est){
               do.call(data.frame,c(list(Estimator=est),
+                                   list("theta"=as.array(list(l$model$theta))),
+                                   list("xi"=as.array(list(l$model$xi))),
+                                   list("parameters"=as.array(list(l$model$param))),
                                    list("Mean"=as.array(list(signif(ll$Mean[est][[1]],3)))),
                                    list("% Relative Bias"=as.array(list(signif(100*ll$Bias[est][[1]]/ll$Mean[est][[1]],3)))),
                                    list("RMSE Ratio"=as.array(list(signif(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["Sample"][[1]],3)))))),
                                    list("Empirical Variance"=as.array(list(signif(diag(as.matrix(ll$Variance[est][[1]],3)))))),
                                    list("Asymptotic Variance"=as.array(list(signif(diag(as.matrix(ll$V[est][[1]],3))))))))}))
-    names(X)<-c("Estimator","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
+    names(X)<-c("Estimator",
+      "$\\theta$","$\\xi$","Other paramters","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
     X})}    
 
 

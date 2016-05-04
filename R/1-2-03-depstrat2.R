@@ -75,24 +75,18 @@ model.dep.strat2<-function(sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
   # objects related to estimation
   #__________________________________________________________________________
    xihat=function(y,z,s,pik=NULL){
-      if(is.null(pik)){pik<-StratS(sampleparam)$Pik(z)}; #inclusion probabilities
-      s.zy<-sum((z*y[,2]/pik)[s]) #HT estimator of $\sum_{k=1}^N Y_k Z_k$
-      s.y2<-sum((y[,2]^2/pik)[s])  #HT estimator of $\sum_{k=1}^N Y_k^2$
-      xi.hat<-(s.zy)/(s.y2)    #estimator of $xi$}
-      return(xi.hat)}
-   xihat=function(y,z,s){
-      pik<-StratS(sampleparam)$Pik(z); #inclusion probabilities
-      s.zy<-sum((z*y[,2]/pik)[s]) #HT estimator of $\sum_{k=1}^N Y_k Z_k$
+     if(is.null(pik)){pik<-StratS(sampleparam)$Pik(z)}; #inclusion probabilities
+     s.zy<-sum((z*y[,2]/pik)[s]) #HT estimator of $\sum_{k=1}^N Y_k Z_k$
       s.y2<-sum((y[,2]^2/pik)[s])  #HT estimator of $\sum_{k=1}^N Y_k^2$
       xi.hat<-(s.zy)/(s.y2)    #estimator of $xi$}
       return(xi.hat)}
    xihatfunc1 <-function(y,z,pik){cbind(z*y[,2]/pik,y[,2]^2/pik)}
    xihatfunc2 <-function(u){u[1]/u[2]}
   
-    thetaht=function(y,z,s){
-        piks<-StratS(sampleparam)$Pik(z)[s];
-        lmm<-lm(y[s,2]~cbind(y[s,1]),weights=1/piks);
-        sigmahat<-sqrt(sum(lmm$residuals^2/piks)/sum(1/piks))
+    thetaht=function(y,z,s,pik=NULL){
+      if(is.null(pik)){pik<-StratS(sampleparam)$Pik(z)}; #inclusion probabilities
+        lmm<-lm(y[s,2]~cbind(y[s,1]),weights=1/pik[s]);
+        sigmahat<-sqrt(sum(lmm$residuals^2/pik[s])/sum(1/pik[s]))
         return(c(as.vector(lmm$coefficients),sigmahat))}
     thetaniais=function(y,z,s){
         lmm<-lm(y[s,2]~cbind(y[s,1]));
