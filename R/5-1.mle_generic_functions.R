@@ -271,7 +271,7 @@ Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,param,method="
 
 simulation.summary<-function(table_data){
   lapply(table_data,function(l){
-    ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.")],V=l$cave$V$Sample)
+    ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.")],l$cave["V"])
     X<-do.call(rbind,
             lapply(c("Naive","Pseudo","Sample","Full"),function(est){
               do.call(data.frame,c(list(Estimator=est),
