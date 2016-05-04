@@ -1,7 +1,4 @@
 ---
-title: "R code for 'Asymptotics for the maximum sample likelihood estimator under informative selection from a finite population'"
-author: Daniel Bonnery
-date: May 2d, 2016
 output: md_document
 ---
 
@@ -25,9 +22,6 @@ demo(table3)
 
 
 
-```
-## Warning in data(table1, table2, table3): data set 'table2' not found
-```
                                                                                                 
 ### Table 1
 
