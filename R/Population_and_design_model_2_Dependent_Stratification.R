@@ -94,9 +94,7 @@ model.dep.strat2<-function(
     #returns the entries of the function
     sampleparam=sampleparam,theta=theta,xi=xi,conditionalto=conditionalto,
     #returns the function that will generate the population give a population size N
-    rloix=rloix,
     rloiy=rloiy,
-    rloiy.x=rloiy.x,
     #returns the cdf of y given x on the population
     ploi=function(y)           {pnorm(y[,2],mean=theta[1]+theta[2]*y[,1],sd=theta[3])},
     #returns the pdf of y given x on the population

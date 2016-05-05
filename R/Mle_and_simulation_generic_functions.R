@@ -12,12 +12,12 @@
 #      - thetaxi: concatenation of theta and xi
 ###################################################################
 ## 1. Computations related to loglikelihood
-##1.1 Calculus of the mean sample log likelihood function
-sample.likelihood<-function(theta,y,model,xi){return(sum(log(model$rhothetaxi(y,theta,xi))+log(model$dloitheta(y,theta))))}
-##1.2 Calculus of the mean sample log likelihood function
-full.likelihood<-function(thetaxi,y,model){if(!is.null(model$fulllikelihood)){log(model$fulllikelihood(y,thetaxi))}else{}}
+##1.1 Calculus of the plugin sample log likelihood function
+sample.loglikelihood.plugin<-function(theta,y,model,xi){sum(log(model$rhothetaxi(y,theta,xi))+log(model$dloitheta(y,theta)))}
+##1.2 Calculus of the  sample log likelihood function
+sample.loglikelihood<-function(thetaxi,obs,model){model$sample.loglikelihood}
 ##1.3. Calculus of the mean population log likelihood
-pop.likelihood<-function(theta,y,model,xi){return(sum(log(model$dloitheta(y,theta))))}
+pop.loglikelihood<-function(theta,y,model,xi){return(sum(log(model$dloitheta(y,theta))))}
 ##1.4. Calculus of the derivative of the loglikelihood for one observation
 loglikethetaxi <- function(thetaxi,model,y){
   log(model$rhothetaxi(y,thetaxi[1:length(model$theta)],thetaxi[length(model$theta)+1:length(model$xi)])*model$dloitheta(y,thetaxi[1:length(model$theta)]))}
@@ -123,7 +123,7 @@ calcule.Sigma<-function(model,N,nbrepSigma=1000,conditionalto=NULL,methodI="MC",
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
                          function(){
-                           y=model$rloiy(N,.conditionalto)   #generates y conditionnally to x
+                           y=model$rloiy(N,conditionalto)   #generates y conditionnally to x
                            z=model$rloiz(y)       #generates z conditionnally to x and y
                            s <- model$Scheme$S(z);#draws the sample
                            pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
@@ -163,14 +163,14 @@ fullMLE<-function(y,z,s,model,method="nlm"){
   if(is.matrix(y)){ys<-y[s,]}
   if(method=="formula"){model$fullMLE(y,z,s)}else{
     if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
-                                                      fn =full.likelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}}
+                                                      fn =full.loglikelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}}
 sampleMLE<-function(y,z,s,model,method="nlm",xi.hat=NULL){
   if(method=="formula"){model$sampleMLE(y,z,s)}else{
     if(is.vector(y)){ys<-y[s]}
     if(is.matrix(y)){ys<-y[s,]}
     if(is.null(xi.hat)){xi.hat<-model$xihat(y,z,s,model$Scheme$Pik(z))}
     unlist(optimx::optimx(model$theta,
-                          fn=sample.likelihood,method=method,
+                          fn=sample.loglikelihood.plugin,method=method,
                           control=list(maximize=TRUE),
                           y=ys,model=model,xi=xi.hat))[1:length(model$theta)]}}
 pseudoMLE<-function(y,z,s,pi,model,method="nlm"){
@@ -179,7 +179,7 @@ pseudoMLE<-function(y,z,s,pi,model,method="nlm"){
     if(is.matrix(y)){ys<-y[s,]}
     xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
     unlist(optimx::optimx(model$theta,
-                          fn=sample.likelihood,method=method,
+                          fn=sample.loglikelihood.plugin,method=method,
                           control=list(maximize=TRUE),
                           y=ys,model=model,xi=xihat))[1:length(model$theta)]}}
 
