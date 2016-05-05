@@ -22,28 +22,28 @@ demo(table3)
 
 |Estimator |$\theta$ |$\xi$ |Conditional to |Mean |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
 |:---------|:--------|:-----|:--------------|:----|:---------------|:----------|:------------------|:-------------------|
-|Naive     |4        |0.1   |NULL           |4.1  |                |1.36391    |0.0191181          |NA                  |
-|Pseudo    |4        |0.1   |NULL           |4.01 |                |1.50894    |0.0313853          |NA                  |
-|Sample    |4        |0.1   |NULL           |4.01 |                |1          |0.0208288          |0.0189171           |
-|Full      |4        |0.1   |NULL           |NaN  |                |NA         |NA                 |NA                  |
+|Naive     |4        |0.1   |NULL           |4.1  |2.39            |1.35043    |0.0181758          |NA                  |
+|Pseudo    |4        |0.1   |NULL           |4.01 |0.311           |1.53996    |0.0309899          |NA                  |
+|Sample    |4        |0.1   |NULL           |4.01 |0.143           |1          |0.0201916          |0.0200028           |
+|Full      |4        |0.1   |NULL           |NaN  |NaN             |NA         |NA                 |NA                  |
 
 
 
 |Estimator |$\theta$ |$\xi$ |Conditional to |Mean |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
 |:---------|:--------|:-----|:--------------|:----|:---------------|:----------|:------------------|:-------------------|
-|Naive     |4        |1     |NULL           |4.85 |                |15.1591    |0.0315874          |NA                  |
-|Pseudo    |4        |1     |NULL           |4.05 |                |2.1056     |0.103356           |NA                  |
-|Sample    |4        |1     |NULL           |4.01 |                |1          |0.0499598          |0.0452844           |
-|Full      |4        |1     |NULL           |NaN  |                |NA         |NA                 |NA                  |
+|Naive     |4        |1     |NULL           |4.86 |21.5            |15.3729    |0.031139           |NA                  |
+|Pseudo    |4        |1     |NULL           |4.05 |1.19            |2.13148    |0.104135           |NA                  |
+|Sample    |4        |1     |NULL           |4.02 |0.416           |1          |0.0496496          |0.0509886           |
+|Full      |4        |1     |NULL           |NaN  |NaN             |NA         |NA                 |NA                  |
 
 
 
 |Estimator |$\theta$ |$\xi$ |Conditional to |Mean |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
 |:---------|:--------|:-----|:--------------|:----|:---------------|:----------|:------------------|:-------------------|
-|Naive     |4        |2     |NULL           |5.57 |                |33.159     |0.0542914          |NA                  |
-|Pseudo    |4        |2     |NULL           |4.04 |                |1.83648    |0.138569           |NA                  |
-|Sample    |4        |2     |NULL           |4.01 |                |1          |0.076156           |0.0726147           |
-|Full      |4        |2     |NULL           |NaN  |                |NA         |NA                 |NA                  |
+|Naive     |4        |2     |NULL           |5.59 |39.7            |33.8249    |0.0567029          |NA                  |
+|Pseudo    |4        |2     |NULL           |4.06 |1.4             |1.87451    |0.139452           |NA                  |
+|Sample    |4        |2     |NULL           |4.02 |0.419           |1          |0.0757842          |0.0771277           |
+|Full      |4        |2     |NULL           |NaN  |NaN             |NA         |NA                 |NA                  |
 
 ### Table 2
 
