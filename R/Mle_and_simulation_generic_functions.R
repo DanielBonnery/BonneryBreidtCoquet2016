@@ -237,6 +237,7 @@ simule<-function(N,model,nbreps=300,method=list(Sample="nlm",Pseudo="nlm",Naive=
     Variance=Var,
     Mean=M,
     Bias=Bias,
+    E=E,
     "M.S.E."=MSE))}
 
 #7. Simulations and output
