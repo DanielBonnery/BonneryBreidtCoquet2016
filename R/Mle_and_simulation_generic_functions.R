@@ -118,7 +118,7 @@ if(FALSE){
 }
 
 
-calcule.Sigma<-function(model,N,nbrepSigma=1000,.conditionalto=conditionalto,methodI="MC",methodSigma="MC"){
+calcule.Sigma<-function(model,N,nbrepSigma=1000,conditionalto=NULL,methodI="MC",methodSigma="MC"){
   return(N *model$tau*
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
@@ -147,7 +147,7 @@ calculeV<-function(Sigma,Im,dimtheta){
   return(list(V=V,V1=V1,V2=V2,V3=V3))}
 
 
-cav<-function(model,N,nbrepSigma=300,nbrepI=300,conditionalto=NULL){
+cav<-function(model,N,nbrepSigma=300,nbrepI=300,conditionalto=NULL,methodI = "MC", methodSigma = "MC"){
   Sigma <- calcule.Sigma(model,N,nbrepSigma,conditionalto=conditionalto)
   Imatrix <- Imatrix7(N,model,conditionalto=conditionalto)
   dimtheta<-length(model$theta);
