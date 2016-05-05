@@ -75,7 +75,7 @@ Imatrix3<-function(N,model,nbrepI=300){
 Imatrix4<-function(N,model,nbrepI=300){
   y<-do.call(rbind,plyr::rlply(nbrepI,model$rloiy(N,conditionalto)))
   s<-model$Scheme$S(model$rloiz(y)) #draw a sample
-  return( -apply(Deriveloglikethetaxi2(y[s,],model,theta,xi),c(1,2),mean))}
+  return( -apply(Deriveloglikethetaxi2(as.matrix(y)[s,],model,theta,xi),c(1,2),mean))}
 
 Imatrix5<-function(N,model,nbrepI=300){
   if(is.null(x)){x<-model$rloix(N)}
@@ -85,7 +85,7 @@ Imatrix5<-function(N,model,nbrepI=300){
              function(i){
                y<-cbind(x,model$rloiy.x(x,N))
                s<-model$Scheme$S(model$rloiz(y)) 
-               return( -apply(Deriveloglikethetaxi2(y[s,],model,theta,xi),c(1,2),mean))})),
+               return( -apply(Deriveloglikethetaxi2(as.matrix(y)[s,],model,theta,xi),c(1,2),mean))})),
     dim=c(4,4,nbrepI)),
     c(1,2),mean))}
 
@@ -98,7 +98,7 @@ Imatrix6<-function(N,model,nbrepI=300,x=NULL){
   dd<-Deriveloglikethetaxi(y[s,],model,theta,xi)
   return(t(dd)%*%(dd)/nrep)}
 
-Imatrix7<-function(N,model,nbrepI=300){
+Imatrix7<-function(N,model,nbrepI=300,conditionalto=conditionalto){
   y<-do.call(rbind,plyr::rlply(nbrepI,model$rloiy(N,conditionalto)))
   s<-model$Scheme$S(model$rloiz(y))
   dd<-Deriveloglikethetaxi(y[s,],model,model$theta,model$xi)
@@ -133,18 +133,17 @@ if(FALSE){
 }
 
 
-calcule.Sigma<-function(model,N,nbrepSigma=1000,x=NULL){
-  if(is.null(x)){x <- model$rloix(N)}
+calcule.Sigma<-function(model,N,nbrepSigma=1000,conditionalto=conditionalto){
   return(N *model$tau*
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
                          function(){
-                           y=model$rloiy.x(x,N)   #generates y conditionnally to x
+                           y=model$rloiy(N,conditionalto)   #generates y conditionnally to x
                            z=model$rloiz(y)       #generates z conditionnally to x and y
                            s <- model$Scheme$S(z);#draws the sample
                            pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
                            return(apply(cbind(Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi),
-                                              model$xihatfunc1(as.matrix(y)[s,],z[s],pi[s])),2,mean))}),
+                                              model$xihatfunc1(as.matrix(y)[s,],as.matrix(z)[s,],pi[s])),2,mean))}),
              1,function(u){c(u[1:length(model$theta)],
                              model$xihatfunc2(u[length(model$theta)+length(model$xi)+(1:model$xihatfuncdim)]))})))}
 
@@ -163,10 +162,9 @@ calculeV<-function(Sigma,Im,dimtheta){
   return(list(V=V,V1=V1,V2=V2,V3=V3))}
 
 
-cav<-function(model,N,nbrepSigma=300,nbrepI=300,x=NULL){
-  if(is.null(x)){x <- model$rloix(N)}
-  Sigma <- calcule.Sigma(model,N,nbrepSigma,x=x)
-  Im <- Imatrix7(N,model,x=x)
+cav<-function(model,N,nbrepSigma=300,nbrepI=300,conditionalto=NULL){
+  Sigma <- calcule.Sigma(model,N,nbrepSigma,conditionalto=conditionalto)
+  Im <- Imatrix7(N,model,conditionalto=conditionalto)
   dimtheta<-length(model$theta);
   V123<-calculeV(Sigma,Im,dimtheta)
   V<-list(Sample=V123$V/(N*model$tau),Pseudo=NA,Naive=NA,Full=NA)
@@ -260,8 +258,7 @@ simule<-function(N,model,nbreps=300,method=list(Sample="nlm",Pseudo="nlm",Naive=
 #7. Simulations and output
 Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,conditionalto,method="nlm",nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(sampleparam,theta,xi,conditionalto)
-  x<-model$rloix(N);
-  cave <- cav(model,N,nbrepSigma=nbrepSigma,nbrepI=nbrepI,x=x)
+  cave <- cav(model,N,nbrepSigma=nbrepSigma,nbrepI=nbrepI,conditionalto)
   sim<-simule(N=N,model,nbreps=nbreps,method=method,x=x)
   return(list(theta=theta,conditionalto=conditionalto,xi=xi,method=method,sim=sim,cave=cave,model=model))}
 
