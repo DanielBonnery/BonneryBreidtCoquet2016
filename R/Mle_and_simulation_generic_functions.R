@@ -166,22 +166,18 @@ fullMLE<-function(y,z,s,model,method="nlm"){
                                                       fn =full.loglikelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}}
 sampleMLE<-function(y,z,s,model,method="nlm",xi.hat=NULL){
   if(method=="formula"){model$sampleMLE(y,z,s)}else{
-    if(is.vector(y)){ys<-y[s]}
-    if(is.matrix(y)){ys<-y[s,]}
     if(is.null(xi.hat)){xi.hat<-model$xihat(y,z,s,model$Scheme$Pik(z))}
     unlist(optimx::optimx(model$theta,
                           fn=sample.loglikelihood.plugin,method=method,
                           control=list(maximize=TRUE),
-                          y=ys,model=model,xi=xi.hat))[1:length(model$theta)]}}
-pseudoMLE<-function(y,z,s,pi,model,method="nlm"){
-  if(method=="formula"){model$sampleMLE(y,z,s)}else{
-    if(is.vector(y)){ys<-y[s]}
-    if(is.matrix(y)){ys<-y[s,]}
-    xihat<-model$xihat(y,z,s,model$Scheme$Pik(z));
-    unlist(optimx::optimx(model$theta,
-                          fn=sample.loglikelihood.plugin,method=method,
+                          y=as.matrix(y)[s,],model=model,xi=xi.hat))[1:length(model$theta)]}}
+pseudoMLE<-function(y,z,s,pi=NULL,model,method="nlm"){
+  if(is.null(pi)){pik=model$Scheme$Pik(z)}
+  if(method=="formula"){model$pseudoMLE(y,z,s)}else{
+      unlist(optimx::optimx(model$theta,
+                          fn=pseudo.loglikelihood,method=method,
                           control=list(maximize=TRUE),
-                          y=ys,model=model,xi=xihat))[1:length(model$theta)]}}
+                          y=as.matrix(ys),model=model,xi=xihat))[1:length(model$theta)]}}
 
 #6. Simulation procedure
 # Entry :
