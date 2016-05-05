@@ -177,7 +177,7 @@ pseudoMLE<-function(y,z,s,pi=NULL,model,method="nlm"){
       unlist(optimx::optimx(model$theta,
                           fn=pseudo.loglikelihood,method=method,
                           control=list(maximize=TRUE),
-                          y=as.matrix(ys),model=model,xi=xihat))[1:length(model$theta)]}}
+                          y=as.matrix(ys),model=model))}}
 
 #6. Simulation procedure
 # Entry :
