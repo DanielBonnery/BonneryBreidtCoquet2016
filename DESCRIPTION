@@ -6,7 +6,6 @@ Date: 2016-04-08
 Author: D. Bonnery
 Imports:
   np,
-  multicore,
   sampling,
   optimx,
   numDeriv,
