@@ -1,6 +1,7 @@
 #2.1. Pareto distribution
-model.Pareto.bernstrat<-function(sampleparam=list(tauh=c(.1,.5)),theta=1,xi=1,conditionalto=NULL){
+model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,sampleparam=list(tauh=c(.1,.5)))){
     #sampleparam is a list with tauh
+    attach(conditionalto)
     attach(sampleparam)
   calculeSigma<-function(){
     # Check that Taylor deviates have mean zero, and compute their second moment.
@@ -40,9 +41,9 @@ model.Pareto.bernstrat<-function(sampleparam=list(tauh=c(.1,.5)),theta=1,xi=1,co
   list(
    theta=theta,
     xi=xi,
-     conditionalto=conditionalto,
+    conditionalto=conditionalto,
     rloiy=rloiy,
-  ploi=function(y){pploi<-function(y){(y>=1)*(1-(1/max(y,1)^theta))}
+    ploi=function(y){pploi<-function(y){(y>=1)*(1-(1/max(y,1)^theta))}
                    return(sapply(y,pploi))},
   ploilim=function(y){1-1/pgamma(y,3/2,2)},
   rloiz=rloiz,
@@ -53,11 +54,10 @@ model.Pareto.bernstrat<-function(sampleparam=list(tauh=c(.1,.5)),theta=1,xi=1,co
   Jacobiane=function(listeqtes,theta,xi,n){},
   hessiane=function(listeqtes,theta,xi,n){},
   rhoxthetaxi=function(x,theta,xi){1},
-  rhothetaxi=function(y,theta,xi){  as.vector(((sampleparam$tauh%*%rbind(1-theta/(xi+theta),theta/(xi+theta)))^{-1})[1,1]*
+  rhothetaxi=function(y,theta,xi){as.vector(((sampleparam$tauh%*%rbind(1-theta/(xi+theta),theta/(xi+theta)))^{-1})[1,1]*
                                     (sampleparam$tauh%*%rbind(1-1/(as.vector(y)^xi), 1/(as.vector(y)^xi))))},
   rho=function(y){ as.vector(((sampleparam$tauh%*%rbind(xi/(xi+theta),theta/(xi+theta)))^{-1})[1,1]*
                                     (sampleparam$tauh%*%rbind(1-1/(as.vector(y)^xi),1/(as.vector(y)^xi))))},
-  sampleparam=sampleparam,
   tau=tau,
   #logl1prime=logl1prime,
   I11MC=function(){} ,
@@ -66,23 +66,19 @@ model.Pareto.bernstrat<-function(sampleparam=list(tauh=c(.1,.5)),theta=1,xi=1,co
   I12formula=I12formula,
   I11=I11formula,
   I12=I12formula,
-  xihat=function(y,z,s,pik){
-    HT_y<-sum(y[s]/pik[s])
-    HT_1<-sum(1/pik[s])
-    HT_yz<-sum(y[s]*z[s]/pik[s])
-    HT_theta<-(HT_y/(HT_y-HT_1))
-    HT_xi<-HT_theta*((HT_1-HT_yz)/HT_yz)+1
-    return(HT_xi)},
+  xihat=function(Obs){
+    HT_y<-sum(Obs$y/Obs$pik)
+    HT_1<-sum(1/Obs$pik)
+    HT_yz<-sum(Obs$y*Obs$z/Obs$pik)
+    (HT_y/(HT_y-HT_1))*((HT_1-HT_yz)/HT_yz)+1},
   xihatfunc1=function(y,z,pik){cbind(1/pik,y/pik,y*z/pik)},
   xihatfunc2=function(u){(u[2]/(u[2]-u[1]))*((u[1]-u[3])/u[3])+1},
   xihatfuncdim=3,
-  thetaniais=function(y,z,s){HT_theta<-mean(y[s])/(mean(y[s])-1)},
-  thetaht=function(y,z,s,pik){
-    HT_y<-sum((y[s]/pik[s]))
-    HT_1<-sum(1/pik[s])
-    HT_theta<-(HT_y/(HT_y-HT_1))
-    return(HT_theta)},
-  thetahat=function(y,z,s){NULL},
+  thetaniais=function(Obs){HT_theta<-mean(Obs$y)/(mean(Obs$y)-1)},
+  thetaht=function(Obs){
+    HT_y<-sum((Obs$y/pik))
+    HT_1<-sum(1/Obs$pik)
+    HT_y/(HT_y-HT_1)},
   Sigma=calculeSigma(),
   V=Sigma[1,1]/I11formula^2+I12formula/I11formula^2*(Sigma[2,2]*I12formula-2*Sigma[1,2]),
   VHT=tau*(

@@ -11,6 +11,13 @@
 #      - xi
 #      - thetaxi: concatenation of theta and xi
 ###################################################################
+##generate observations
+generate.observations<-function(model){
+  Y<-model$rloiy();  #Y generation
+  Z<-rloiz(Y); #Z generation
+  S<-model$Scheme$S(Z);     #sample selection
+  Pik<-model$Scheme$Pik(Z)
+  list(y=Y[S],z=Z[S],pik<-Pik[S])}
 ## 1. Computations related to loglikelihood
 ##1.1 Calculus of the plugin sample log likelihood function
 sample.loglikelihood.plugin<-function(theta,y,model,xi){sum(log(model$rhothetaxi(y,theta,xi))+log(model$dloitheta(y,theta)))}
@@ -21,9 +28,11 @@ pop.loglikelihood<-function(theta,y,model,xi){return(sum(log(model$dloitheta(y,t
 ##1.4. Calculus of the derivative of the loglikelihood for one observation
 loglikethetaxi <- function(thetaxi,model,y){
   log(model$rhothetaxi(y,thetaxi[1:length(model$theta)],thetaxi[length(model$theta)+1:length(model$xi)])*model$dloitheta(y,thetaxi[1:length(model$theta)]))}
-deriveloglikethetaxi  <- function(y,model,theta,xi){numDeriv::jacobian(c(theta,xi),func=loglikethetaxi,model=model,y=y)}
+deriveloglikethetaxi  <- function(y,model,theta,xi){
+  numDeriv::jacobian(c(theta,xi),func=loglikethetaxi,model=model,y=y)}
 ##1.5 Second order derivative for one observation
-deriveloglikethetaxi2 <- function(y,model,theta,xi){numDeriv::hessian (c(theta,xi),func=loglikethetaxi,model=model,y=y)}
+deriveloglikethetaxi2 <- function(y,model,theta,xi){
+  numDeriv::hessian (c(theta,xi),func=loglikethetaxi,model=model,y=y)}
 ##1.5 Second order derivative for one observation          
 rhoderiveloglikethetaxi2<-function(y,model,theta,xi){
   model$rhothetaxi(y,theta,xi)*deriveloglikethetaxi2(y,model,theta,xi)}
@@ -46,56 +55,56 @@ RhoDeriveloglikethetaxi2<-function(y,model,theta,xi){
     return(plyr::aaply(y,1,rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi))}}   
 ## Computation of information matrices
 
-Imatrixf<-function(N,model,nbrepI=300,methodIm="FirsDeriv"){
-if(methodIm=="formula"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
+Imatrixf<-function(N,model,nbrepI=300,methodIm="FirstDeriv"){
+  if(methodIm=="formula"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
   if(methodIm=="FirstDeriv"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
   
 }
 
-Imatrix1<-function(N,model,nbrepI=300,conditionalto=NULL){#3 minutes for n=30
+Imatrix1<-function(model,nbrepI=300){#3 minutes for n=30
   xx<-plyr::raply(nbrepI,
                   (function(){
-                    y<-model$rloiy(N,model$conditionalto)
+                    y<-model$rloiy()
                     dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
                     rhorho=model$rhothetaxi(y,model$theta,model$xi)
-                    return(t(dd)%*%(dd*rhorho)/N)})())
+                    return(t(dd)%*%(dd*rhorho)/model$conditionalto$N)})())
   return(apply(xx,2:length(dim(xx)),mean))}
 #compute the information matrix in different ways
-Imatrix2<-function(N,model,nbrepI=300,conditionalto=NULL){
-  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy(N,conditionalto))))
+Imatrix2<-function(model,nbrepI=300){
+  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy())))
   xxx=RhoDeriveloglikethetaxi2(y,model,theta,xi)
   return( -apply(xxx,2:length(dim(xxx)),mean))}
 
-Imatrix3<-function(N,model,nbrepI=300,conditionalto=NULL){
-  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy(N,conditionalto))))
+Imatrix3<-function(model,nbrepI=300){
+  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy())))
   dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
   rhorho=model$rhothetaxi(y,model$theta,model$xi)
   return(t(dd)%*%(dd*rhorho)/(nbrepI*N))}
 
-Imatrix4<-function(N,model,nbrepI=300,conditionalto=NULL){
-  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy(N,conditionalto))))
+Imatrix4<-function(model,nbrepI=300){
+  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy())))
   s<-model$Scheme$S(model$rloiz(y)) #draw a sample
   return( -apply(Deriveloglikethetaxi2(as.matrix(y)[s,],model,theta,xi),c(1,2),mean))}
 
-Imatrix6<-function(N,model,nbrepI=300,conditionalto=NULL){
-  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy(N,conditionalto))))
+Imatrix6<-function(model,nbrepI=300){
+  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy())))
   s<-model$Scheme$S(model$rloiz(y))
   nrep=length(s)
   dd<-Deriveloglikethetaxi(y[s,],model,theta,xi)
   return(t(dd)%*%(dd)/nrep)}
 
-Imatrix7<-function(N,model,nbrepI=300,conditionalto=NULL){
-  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy(N,conditionalto))))
+Imatrix7<-function(model,nbrepI=300){
+  y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy())))
   s<-model$Scheme$S(model$rloiz(y))
   dd<-Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi)
   return(t(dd)%*%(dd)/nrow(dd))}
 
 
-Imatrix9<-function(N,model,nbrepI=300,conditionalto=NULL){
-  y<-do.call(rbind,plyr::rlply(nbrepI,model$rloiy(N,conditionalto)))
+Imatrix9<-function(model,nbrepI=300){
+  y<-do.call(rbind,plyr::rlply(nbrepI,model$rloiy()))
   dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
   rhorho <- model$rhothetaxi(y,model$theta,model$xi)*model$rhoxthetaxi(y,model$theta,model$xi)
-  return(t(dd)%*%(dd*rhorho)/(N*nbrepI))}
+  return(t(dd)%*%(dd*rhorho)/(model$conditionalto$N*nbrepI))}
 
 
 
@@ -123,7 +132,7 @@ calcule.Sigma<-function(model,N,nbrepSigma=1000,conditionalto=NULL,methodI="MC",
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
                          function(){
-                           y=model$rloiy(N,conditionalto)   #generates y conditionnally to x
+                           y=model$rloiy()   #generates y conditionnally to x
                            z=model$rloiz(y)       #generates z conditionnally to x and y
                            s <- model$Scheme$S(z);#draws the sample
                            pi <- model$Scheme$Pik(z);# compute the inclusion probabilities            
@@ -158,12 +167,11 @@ cav<-function(model,N,nbrepSigma=300,nbrepI=300,conditionalto=NULL,methodI = "MC
 
 
 ##5. Optimisation procedure : computation of the maximum likelihood estimator
-fullMLE<-function(y,z,s,model,method="nlm"){
-  if(is.vector(y)){ys<-y[s]}
-  if(is.matrix(y)){ys<-y[s,]}
-  if(method=="formula"){model$fullMLE(y,z,s)}else{
+fullMLE<-function(Obs,model,method="nlm"){
+  ys<-as.matrix(Obs$y)
+  if(method=="formula"){model$fullMLE(Obs)}else{
     if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
-                                                      fn =full.loglikelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=z)}else{NA}}}
+                                                      fn =full.loglikelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=Obs$z)}else{NA}}}
 sampleMLE<-function(y,z,s,model,method="nlm",xi.hat=NULL){
   if(method=="formula"){model$sampleMLE(y,z,s)}else{
     if(is.null(xi.hat)){xi.hat<-model$xihat(y,z,s,model$Scheme$Pik(z))}
@@ -174,7 +182,7 @@ sampleMLE<-function(y,z,s,model,method="nlm",xi.hat=NULL){
 pseudoMLE<-function(y,z,s,pi=NULL,model,method="nlm"){
   if(is.null(pi)){pik=model$Scheme$Pik(z)}
   if(method=="formula"){model$pseudoMLE(y,z,s)}else{
-      unlist(optimx::optimx(model$theta,
+    unlist(optimx::optimx(model$theta,
                           fn=pseudo.loglikelihood,method=method,
                           control=list(maximize=TRUE),
                           y=as.matrix(ys),model=model))}}
@@ -194,7 +202,9 @@ pseudoMLE<-function(y,z,s,pi=NULL,model,method="nlm"){
 #  - method : name of the method for optimisation
 #    ("grille", "Grille It", 
 
-simule<-function(N,model,nbreps=300,method=list(Sample="nlm",Pseudo="nlm",Naive="nlm",Full="nlm"),conditionalto=NULL){
+simule<-function(model,
+                 nbreps=300,
+                 method=list(Sample="nlm",Pseudo="nlm",Naive="nlm",Full="nlm",Sigma="",I="")){
   #Set the precision (used in optimisation procedure)
   attach(model)
   attach(Scheme)
@@ -202,16 +212,13 @@ simule<-function(N,model,nbreps=300,method=list(Sample="nlm",Pseudo="nlm",Naive=
   Estim <- plyr::rlply(nbreps,
                        (function(){
                          #Population generation and sample selection
-                         Yg<-rloiy(N,conditionalto);  #Y generation
-                         Zg<-rloiz(Yg); #Z generation
-                         Sg<-S(Zg);     #sample selection
-                         Pikg<-Pik(Zg)
-                         thetaxi.full=fullMLE(Yg,Zg,Sg,model,method)
-                         xi.hat   =xihat     (Yg,Zg,Sg,Pikg)
+                         Obs<-generate.observations(model)
+                         thetaxi.full=fullMLE(Obs,model,method)
+                         xi.hat   =xihat     (Obs)
                          return(list(xi.hat   =xi.hat,
-                                     Pseudo =thetaht   (Yg,Zg,Sg,Pikg),
-                                     Naive=thetaniais(Yg,Zg,Sg),
-                                     Sample=try(sampleMLE(Yg,Zg,Sg,model,method,xi.hat=xi.hat)),
+                                     Pseudo =thetaht(Obs),
+                                     Naive=thetaniais(Obs),
+                                     Sample=try(sampleMLE(Obs,model,method,xi.hat=xi.hat)),
                                      xi.full=thetaxi.full[length(model$theta)+(1:length(model$xi))],
                                      Full=thetaxi.full[1:length(model$theta)]))})())
   noms<-names(Estim[[1]])
@@ -247,20 +254,16 @@ simulation.summary<-function(table_data){
   lapply(table_data,function(l){
     ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.","E")],l$cave["V"])
     X<-do.call(rbind,
-            lapply(c("Naive","Pseudo","Sample","Full"),function(est){
-              do.call(data.frame,c(list(Estimator=est),
-                                   list("theta"=as.array(list(l$model$theta))),
-                                   list("xi"=as.array(list(l$model$xi))),
-                                   list("Contidional to"=as.array(list(l$model$conditionalto))),
-                                   list("Mean"=as.array(list(signif(ll$Mean[est][[1]],3)))),
-                                   list("% Relative Bias"=as.array(list(signif(100*ll$Bias[est][[1]]/ll$E[est][[1]],3)))),
-                                   list("RMSE Ratio"=as.array(list(signif(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["Sample"][[1]],3)))))),
-                                   list("Empirical Variance"=as.array(list(signif(diag(as.matrix(ll$Variance[est][[1]],3)))))),
-                                   list("Asymptotic Variance"=as.array(list(signif(diag(as.matrix(ll$V[est][[1]],3))))))))}))
+               lapply(c("Naive","Pseudo","Sample","Full"),function(est){
+                 do.call(data.frame,c(list(Estimator=est),
+                                      list("theta"=as.array(list(l$model$theta))),
+                                      list("xi"=as.array(list(l$model$xi))),
+                                      list("Contidional to"=as.array(list(l$model$conditionalto))),
+                                      list("Mean"=as.array(list(signif(ll$Mean[est][[1]],3)))),
+                                      list("% Relative Bias"=as.array(list(signif(100*ll$Bias[est][[1]]/ll$E[est][[1]],3)))),
+                                      list("RMSE Ratio"=as.array(list(signif(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["Sample"][[1]],3)))))),
+                                      list("Empirical Variance"=as.array(list(signif(diag(as.matrix(ll$Variance[est][[1]],3)))))),
+                                      list("Asymptotic Variance"=as.array(list(signif(diag(as.matrix(ll$V[est][[1]],3))))))))}))
     names(X)<-c("Estimator",
-      "$\\theta$","$\\xi$","Conditional to","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
-    X})}    
-
-
-
-
+                "$\\theta$","$\\xi$","Conditional to","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
+    X})}

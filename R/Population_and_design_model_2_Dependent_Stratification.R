@@ -1,16 +1,15 @@
 model.dep.strat2<-function(
-  sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)),
   theta=c(.5,1,1),
   xi=2,
-  conditionalto=list(sigma=1,EX=1,SX=1)){
+  conditionalto=list(N=1000,sigma=1,EX=1,SX=1,sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)))){
   #for simplicity of notation
-  attach(sampleparam)
   attach(conditionalto)
+  attach(sampleparam)
   ##__________________________________________________________________________
   ## objects related to population generation
   ##__________________________________________________________________________
-  rloiy <- function(N,.conditionalto=conditionalto){
-    x=qnorm((1:N)/(N+1),.conditionalto$EX,.conditionalto$SX);
+  rloiy <- function(.conditionalto=conditionalto){
+    x=qnorm((1:.conditionalto$N)/(.conditionalto$N+1),.conditionalto$EX,.conditionalto$SX);
       cbind(x,rnorm(x,mean=theta[1]+theta[2]*x,sd=theta[3]))}
    rloiz=function(y){rnorm(y[,2],mean=xi*y[,2],sd=sigma)}
   ##__________________________________________________________________________
@@ -66,24 +65,16 @@ model.dep.strat2<-function(
   #__________________________________________________________________________
   # objects related to estimation
   #__________________________________________________________________________
-   xihat=function(y,z,s,pik=NULL){
-     if(is.null(pik)){pik<-StratS(sampleparam)$Pik(z)}; #inclusion probabilities
-     s.zy<-sum((z*y[,2]/pik)[s]) #HT estimator of $\sum_{k=1}^N Y_k Z_k$
-      s.y2<-sum((y[,2]^2/pik)[s])  #HT estimator of $\sum_{k=1}^N Y_k^2$
-      xi.hat<-(s.zy)/(s.y2)    #estimator of $xi$}
-      return(xi.hat)}
+   xihat=function(Obs){(sum((Obs$z*Obs$y[,2]/Obs$pik)))/(sum((Obs$y[,2]^2/Obs$pik)))}
    xihatfunc1 <-function(y,z,pik){cbind(z*y[,2]/pik,y[,2]^2/pik)}
    xihatfunc2 <-function(u){u[1]/u[2]}
-  
-    thetaht=function(y,z,s,pik=NULL){
-      if(is.null(pik)){pik<-StratS(sampleparam)$Pik(z)}; #inclusion probabilities
-        lmm<-lm(y[s,2]~cbind(y[s,1]),weights=1/pik[s]);
-        sigmahat<-sqrt(sum(lmm$residuals^2/pik[s])/sum(1/pik[s]))
+    thetaht=function(Obs){
+        lmm<-lm(Obs$y[,2]~cbind(Obs$y[,1]),weights=1/Obs$pik);
+        sigmahat<-sqrt(sum(lmm$residuals^2/Obs$pik)/sum(1/Obs$pik))
         return(c(as.vector(lmm$coefficients),sigmahat))}
-    thetaniais=function(y,z,s){
-        lmm<-lm(y[s,2]~cbind(y[s,1]));
+    thetaniais=function(Obs){
+        lmm<-lm(y[,2]~cbind(y[,1]));
         return(c(as.vector(lmm$coefficients),summary(lmm)$sigma))}
-    thetahat=function(y,z,s){}
 
   #__________________________________________________________________________
   # Final result
@@ -92,7 +83,7 @@ model.dep.strat2<-function(
         
   return(list(
     #returns the entries of the function
-    sampleparam=sampleparam,theta=theta,xi=xi,conditionalto=conditionalto,
+    theta=theta,xi=xi,conditionalto=conditionalto,
     #returns the function that will generate the population give a population size N
     rloiy=rloiy,
     #returns the cdf of y given x on the population
@@ -119,5 +110,5 @@ model.dep.strat2<-function(
     xihatfuncdim = 2,
     thetaht=thetaht,
     thetaniais=thetaniais,
-    thetahat=thetahat,
+    conditionalto=conditionalto,
     supportY=c(-.5,5)))}
