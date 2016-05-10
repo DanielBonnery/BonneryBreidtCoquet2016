@@ -1,6 +1,6 @@
-\name{test-package}
-\alias{test-package}
-\alias{test}
+\name{pubBonneryBreidtCoquet2016-package}
+\alias{pubBonneryBreidtCoquet2016-package}
+\alias{pubBonneryBreidtCoquet2016}
 \docType{package}
 \title{
 \packageTitle{test}
@@ -11,15 +11,15 @@
 \details{
 
 The DESCRIPTION file:
-\packageDESCRIPTION{test}
-\packageIndices{test}
+\packageDESCRIPTION{pubBonneryBreidtCoquet2016}
+\packageIndices{pubBonneryBreidtCoquet2016}
 ~~ An overview of how to use the package, including the most ~~
 ~~ important functions ~~
 }
 \author{
-\packageAuthor{test}
+\packageAuthor{pubBonneryBreidtCoquet2016}
 
-Maintainer: \packageMaintainer{test}
+Maintainer: \packageMaintainer{pubBonneryBreidtCoquet2016}
 }
 \references{
 ~~ Literature or other references for background information ~~
