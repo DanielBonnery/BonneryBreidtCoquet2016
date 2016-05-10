@@ -243,7 +243,7 @@ simule<-function(model,
 Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,conditionalto,method="nlm",nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(theta,xi,conditionalto)
   cave <- cav(model,nbrepSigma=nbrepSigma,nbrepI=nbrepI,methodI="MC",methodSigma="MC")
-  sim<-simule(N=N,model,nbreps=nbreps,method=method,conditionalto=conditionalto)
+  sim<-simule(model,nbreps=nbreps,method=method)
   return(list(model=model,xi=xi,method=method,sim=sim,cave=cave))}
 
 simulation.summary<-function(table_data){
