@@ -31,8 +31,7 @@ loglikethetaxi <- function(thetaxi,model,y){
 deriveloglikethetaxi  <- function(y,model,theta,xi){
   numDeriv::jacobian(c(theta,xi),func=loglikethetaxi,model=model,y=y)}
 ##1.5 Second order derivative for one observation
-deriveloglikethetaxi2 <- function(y,model,theta,xi){
-  numDeriv::hessian (c(theta,xi),func=loglikethetaxi,model=model,y=y)}
+deriveloglikethetaxi2 <- function(y,model,theta,xi){numDeriv::hessian (c(theta,xi),func=loglikethetaxi,model=model,y=y)}
 ##1.5 Second order derivative for one observation          
 rhoderiveloglikethetaxi2<-function(y,model,theta,xi){
   model$rhothetaxi(y,theta,xi)*deriveloglikethetaxi2(y,model,theta,xi)}
@@ -44,15 +43,11 @@ Deriveloglikethetaxi <- deriveloglikethetaxi
 
 Deriveloglikethetaxi2 <-function(y,model,theta,xi){
   if(is.vector(y)){return(deriveloglikethetaxi2(y,model,theta,xi))} 
-  if(is.matrix(y)){
-    return(array(unlist(lapply(lapply(seq_len(length(y[,1])),function(i){y [i,]}),
-                               deriveloglikethetaxi2,model=model,theta=theta,xi=xi)),
-                 dim=c(4,4,length(y[,1]))))}}
+  if(is.matrix(y)){return(plyr::aaply(y,1,deriveloglikethetaxi2,model=model,theta=theta,xi=xi))}}
 
 RhoDeriveloglikethetaxi2<-function(y,model,theta,xi){
   if(is.vector(y)){return(deriveloglikethetaxi2(y,model=model,theta,xi))} 
-  if(is.matrix(y)){
-    return(plyr::aaply(y,1,rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi))}}   
+  if(is.matrix(y)){return(plyr::aaply(y,1,rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi))}}   
 ## Computation of information matrices
 
 Imatrixf<-function(N,model,nbrepI=300,methodIm="FirstDeriv"){
@@ -127,7 +122,8 @@ if(FALSE){
 }
 
 
-calcule.Sigma<-function(model,N,nbrepSigma=1000,conditionalto=NULL,methodI="MC",methodSigma="MC"){
+calcule.Sigma<-function(model,nbrepSigma=1000,methodI="MC",methodSigma="MC"){
+  attach(model$conditionalto)
   return(N *model$tau*
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
@@ -156,11 +152,11 @@ calculeV<-function(Sigma,Im,dimtheta){
   return(list(V=V,V1=V1,V2=V2,V3=V3))}
 
 
-cav<-function(model,N,nbrepSigma=300,nbrepI=300,conditionalto=NULL,methodI = "MC", methodSigma = "MC"){
-  Sigma <- calcule.Sigma(model,N,nbrepSigma,conditionalto=conditionalto)
-  Imatrix <- Imatrix7(N,model,conditionalto=conditionalto)
-  dimtheta<-length(model$theta);
-  V123<-calculeV(Sigma,Imatrix,dimtheta)
+cav<-function(model,nbrepSigma=300,nbrepI=300,methodI = "MC", methodSigma = "MC"){
+  attach(model$conditionalto)
+  Sigma <- calcule.Sigma(model,nbrepSigma)
+  Imatrix <- Imatrix7(model)
+  V123<-calculeV(Sigma,Imatrix,length(model$theta))
   V<-list(Sample=V123$V/(N*model$tau),Pseudo=NA,Naive=NA,Full=NA)
   return(list(Sigma=Sigma,Im=Imatrix,V=V,
               V1=V123$V1/(N*model$tau),V2=V123$V2/(N*model$tau),V3=V123$V3/(N*model$tau)))}
@@ -245,10 +241,10 @@ simule<-function(model,
 
 #7. Simulations and output
 Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,conditionalto,method="nlm",nbreps=3000,nbrepI=3000,nbrepSigma=1000){
-  model<-popmodelfunction(sampleparam,theta,xi,conditionalto)
-  cave <- cav(model,N,nbrepSigma=nbrepSigma,nbrepI=nbrepI,conditionalto,methodI="MC",methodSigma="MC")
+  model<-popmodelfunction(theta,xi,conditionalto)
+  cave <- cav(model,nbrepSigma=nbrepSigma,nbrepI=nbrepI,methodI="MC",methodSigma="MC")
   sim<-simule(N=N,model,nbreps=nbreps,method=method,conditionalto=conditionalto)
-  return(list(theta=theta,conditionalto=conditionalto,xi=xi,method=method,sim=sim,cave=cave,model=model))}
+  return(list(model=model,xi=xi,method=method,sim=sim,cave=cave))}
 
 simulation.summary<-function(table_data){
   lapply(table_data,function(l){
