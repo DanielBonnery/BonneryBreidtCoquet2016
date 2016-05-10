@@ -8,13 +8,10 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-simule(N, model, nbreps = 300, method = list(Sample = "nlm", Pseudo = "nlm", Naive = "nlm", Full = "nlm"), conditionalto = NULL)
+simule(model, nbreps = 300, method = list(Sample = "nlm", Pseudo = "nlm", Naive = "nlm", Full = "nlm", Sigma = "", I = ""))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{N}{
-%%     ~~Describe \code{N} here~~
-}
   \item{model}{
 %%     ~~Describe \code{model} here~~
 }
@@ -23,9 +20,6 @@ simule(N, model, nbreps = 300, method = list(Sample = "nlm", Pseudo = "nlm", Nai
 }
   \item{method}{
 %%     ~~Describe \code{method} here~~
-}
-  \item{conditionalto}{
-%%     ~~Describe \code{conditionalto} here~~
 }
 }
 \details{
@@ -59,22 +53,20 @@ simule(N, model, nbreps = 300, method = list(Sample = "nlm", Pseudo = "nlm", Nai
 ##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (N, model, nbreps = 300, method = list(Sample = "nlm", 
-    Pseudo = "nlm", Naive = "nlm", Full = "nlm"), conditionalto = NULL) 
+function (model, nbreps = 300, method = list(Sample = "nlm", 
+    Pseudo = "nlm", Naive = "nlm", Full = "nlm", Sigma = "", 
+    I = "")) 
 {
     attach(model)
     attach(Scheme)
     Estim <- plyr::rlply(nbreps, (function() {
-        Yg <- rloiy(N, conditionalto)
-        Zg <- rloiz(Yg)
-        Sg <- S(Zg)
-        Pikg <- Pik(Zg)
-        thetaxi.full = fullMLE(Yg, Zg, Sg, model, method)
-        xi.hat = xihat(Yg, Zg, Sg, Pikg)
-        return(list(xi.hat = xi.hat, Pseudo = thetaht(Yg, Zg, 
-            Sg, Pikg), Naive = thetaniais(Yg, Zg, Sg), Sample = try(sampleMLE(Yg, 
-            Zg, Sg, model, method, xi.hat = xi.hat)), xi.full = thetaxi.full[length(model$theta) + 
-            (1:length(model$xi))], Full = thetaxi.full[1:length(model$theta)]))
+        Obs <- generate.observations(model)
+        thetaxi.full = fullMLE(Obs, model, method)
+        xi.hat = xihat(Obs)
+        return(list(xi.hat = xi.hat, Pseudo = thetaht(Obs), Naive = thetaniais(Obs), 
+            Sample = try(sampleMLE(Obs, model, method, xi.hat = xi.hat)), 
+            xi.full = thetaxi.full[length(model$theta) + (1:length(model$xi))], 
+            Full = thetaxi.full[1:length(model$theta)]))
     })())
     noms <- names(Estim[[1]])
     Estim <- Estim[sapply(Estim, function(l) {

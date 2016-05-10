@@ -8,21 +8,15 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-Imatrix7(N, model, nbrepI = 300, conditionalto = NULL)
+Imatrix7(model, nbrepI = 300)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{N}{
-%%     ~~Describe \code{N} here~~
-}
   \item{model}{
 %%     ~~Describe \code{model} here~~
 }
   \item{nbrepI}{
 %%     ~~Describe \code{nbrepI} here~~
-}
-  \item{conditionalto}{
-%%     ~~Describe \code{conditionalto} here~~
 }
 }
 \details{
@@ -56,10 +50,9 @@ Imatrix7(N, model, nbrepI = 300, conditionalto = NULL)
 ##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (N, model, nbrepI = 300, conditionalto = NULL) 
+function (model, nbrepI = 300) 
 {
-    y <- do.call(rbind, plyr::rlply(nbrepI, as.matrix(model$rloiy(N, 
-        conditionalto))))
+    y <- do.call(rbind, plyr::rlply(nbrepI, as.matrix(model$rloiy())))
     s <- model$Scheme$S(model$rloiz(y))
     dd <- Deriveloglikethetaxi(as.matrix(y)[s, ], model, model$theta, 
         model$xi)

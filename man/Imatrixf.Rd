@@ -8,7 +8,7 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-Imatrixf(N, model, nbrepI = 300, methodIm = "FirsDeriv")
+Imatrixf(N, model, nbrepI = 300, methodIm = "FirstDeriv")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -56,7 +56,7 @@ Imatrixf(N, model, nbrepI = 300, methodIm = "FirsDeriv")
 ##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (N, model, nbrepI = 300, methodIm = "FirsDeriv") 
+function (N, model, nbrepI = 300, methodIm = "FirstDeriv") 
 {
     if (methodIm == "formula" & !is.null(model$cave$Imatrix)) {
         model$cave$Imatrix

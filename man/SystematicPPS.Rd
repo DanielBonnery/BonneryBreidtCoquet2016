@@ -1,5 +1,5 @@
-\name{sampleMLE}
-\alias{sampleMLE}
+\name{SystematicPPS}
+\alias{SystematicPPS}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 %%  ~~function to do ... ~~
@@ -8,27 +8,12 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-sampleMLE(y, z, s, model, method = "nlm", xi.hat = NULL)
+SystematicPPS(sampleparam)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{y}{
-%%     ~~Describe \code{y} here~~
-}
-  \item{z}{
-%%     ~~Describe \code{z} here~~
-}
-  \item{s}{
-%%     ~~Describe \code{s} here~~
-}
-  \item{model}{
-%%     ~~Describe \code{model} here~~
-}
-  \item{method}{
-%%     ~~Describe \code{method} here~~
-}
-  \item{xi.hat}{
-%%     ~~Describe \code{xi.hat} here~~
+  \item{sampleparam}{
+%%     ~~Describe \code{sampleparam} here~~
 }
 }
 \details{
@@ -62,19 +47,32 @@ sampleMLE(y, z, s, model, method = "nlm", xi.hat = NULL)
 ##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (y, z, s, model, method = "nlm", xi.hat = NULL) 
+function (sampleparam) 
 {
-    if (method == "formula") {
-        model$sampleMLE(y, z, s)
-    }
-    else {
-        if (is.null(xi.hat)) {
-            xi.hat <- model$xihat(y, z, s, model$Scheme$Pik(z))
+    list(sampleparam = sampleparam, Pik = function(z) {
+        N <- length(z)
+        n <- floor(N * sampleparam$tau)
+        return(((n * abs(z)/sum(abs(z))) > 1) + ((n * abs(z)/sum(abs(z))) <= 
+            1) * n * abs(z)/sum(abs(z)))
+    }, S = function(z) {
+        N <- length(z)
+        n <- floor(N * sampleparam$tau)
+        u <- runif(N)
+        oo <- order(u)
+        cum <- cumsum(abs(z)[oo])
+        if (n > 0) {
+            sel <- (runif(1) + (0:(n - 1))) * cum[N]/n
         }
-        unlist(optimx::optimx(model$theta, fn = sample.loglikelihood.plugin, 
-            method = method, control = list(maximize = TRUE), 
-            y = as.matrix(y)[s, ], model = model, xi = xi.hat))[1:length(model$theta)]
-    }
+        return(oo[apply(outer(sel, cum, FUN = function(a, b) {
+            a < b
+        }) & outer(sel, c(0, cum[-N]), FUN = function(a, b) {
+            a >= b
+        }), 1, FUN = function(x) {
+            (1:N)[x]
+        })])
+    }, demarc = function(z) {
+        NULL
+    })
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

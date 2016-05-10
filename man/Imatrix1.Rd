@@ -8,21 +8,15 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-Imatrix1(N, model, nbrepI = 300, conditionalto = NULL)
+Imatrix1(model, nbrepI = 300)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{N}{
-%%     ~~Describe \code{N} here~~
-}
   \item{model}{
 %%     ~~Describe \code{model} here~~
 }
   \item{nbrepI}{
 %%     ~~Describe \code{nbrepI} here~~
-}
-  \item{conditionalto}{
-%%     ~~Describe \code{conditionalto} here~~
 }
 }
 \details{
@@ -56,13 +50,13 @@ Imatrix1(N, model, nbrepI = 300, conditionalto = NULL)
 ##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (N, model, nbrepI = 300, conditionalto = NULL) 
+function (model, nbrepI = 300) 
 {
     xx <- plyr::raply(nbrepI, (function() {
-        y <- model$rloiy(N, model$conditionalto)
+        y <- model$rloiy()
         dd <- Deriveloglikethetaxi(y, model, model$theta, model$xi)
         rhorho = model$rhothetaxi(y, model$theta, model$xi)
-        return(t(dd) \%*\% (dd * rhorho)/N)
+        return(t(dd) \%*\% (dd * rhorho)/model$conditionalto$N)
     })())
     return(apply(xx, 2:length(dim(xx)), mean))
   }

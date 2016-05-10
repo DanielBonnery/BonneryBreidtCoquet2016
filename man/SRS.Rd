@@ -1,5 +1,5 @@
-\name{sampleMLE}
-\alias{sampleMLE}
+\name{SRS}
+\alias{SRS}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 %%  ~~function to do ... ~~
@@ -8,27 +8,12 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-sampleMLE(y, z, s, model, method = "nlm", xi.hat = NULL)
+SRS(sampleparam)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{y}{
-%%     ~~Describe \code{y} here~~
-}
-  \item{z}{
-%%     ~~Describe \code{z} here~~
-}
-  \item{s}{
-%%     ~~Describe \code{s} here~~
-}
-  \item{model}{
-%%     ~~Describe \code{model} here~~
-}
-  \item{method}{
-%%     ~~Describe \code{method} here~~
-}
-  \item{xi.hat}{
-%%     ~~Describe \code{xi.hat} here~~
+  \item{sampleparam}{
+%%     ~~Describe \code{sampleparam} here~~
 }
 }
 \details{
@@ -62,19 +47,16 @@ sampleMLE(y, z, s, model, method = "nlm", xi.hat = NULL)
 ##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (y, z, s, model, method = "nlm", xi.hat = NULL) 
+function (sampleparam) 
 {
-    if (method == "formula") {
-        model$sampleMLE(y, z, s)
-    }
-    else {
-        if (is.null(xi.hat)) {
-            xi.hat <- model$xihat(y, z, s, model$Scheme$Pik(z))
-        }
-        unlist(optimx::optimx(model$theta, fn = sample.loglikelihood.plugin, 
-            method = method, control = list(maximize = TRUE), 
-            y = as.matrix(y)[s, ], model = model, xi = xi.hat))[1:length(model$theta)]
-    }
+    list(sampleparam = sampleparam, S = function(z) {
+        sample(1:length(z), size = floor(sampleparam$tau * length(z)), 
+            replace = FALSE)
+    }, Pik = function(z) {
+        rep(floor(sampleparam$tau * length(z))/length(z), length(z))
+    }, demarc = function(z) {
+        NULL
+    })
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -67,7 +67,7 @@ function (model, N, nbrepSigma = 1000, conditionalto = NULL,
 {
     return(N * model$tau * var(plyr::aaply(plyr::raply(nbrepSigma, 
         function() {
-            y = model$rloiy(N, conditionalto)
+            y = model$rloiy()
             z = model$rloiz(y)
             s <- model$Scheme$S(z)
             pi <- model$Scheme$Pik(z)
