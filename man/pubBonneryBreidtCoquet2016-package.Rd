@@ -3,10 +3,10 @@
 \alias{pubBonneryBreidtCoquet2016}
 \docType{package}
 \title{
-\packageTitle{test}
+\packageTitle{pubBonneryBreidtCoquet2016}
 }
 \description{
-\packageDescription{test}
+\packageDescription{pubBonneryBreidtCoquet2016}
 }
 \details{
 
