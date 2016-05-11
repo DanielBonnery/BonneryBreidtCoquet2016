@@ -212,19 +212,20 @@ simule<-function(model,
   #Set the precision (used in optimisation procedure)
   attach(model)
   attach(Scheme)
-  #initialization : those vectors will contain the values of the 
-  Estim <- plyr::rlply(nbreps,
+    Estim <- plyr::rlply(nbreps,
                        (function(){
                          #Population generation and sample selection
                          Obs<-generate.observations(model)
                          thetaxi.full=fullMLE(Obs,model,method$Full)
                          xi.hat   =xihat     (Obs)
+                         try(capture.output(Sample=sampleMLE(Obs,model,method$Sample,xi.hat=xi.hat)))
                          return(list(xi.hat   =xi.hat,
                                      Pseudo =thetaht(Obs),
                                      Naive=thetaniais(Obs),
-                                     Sample=try(sampleMLE(Obs,model,method$Sample,xi.hat=xi.hat)),
+                                     Sample=Sample,
                                      xi.full=thetaxi.full[length(model$theta)+(1:length(model$xi))],
-                                     Full=thetaxi.full[1:length(model$theta)]))})())
+                                     Full=thetaxi.full[1:length(model$theta)]))})(),
+                       .progress = "text")
   noms<-names(Estim[[1]])
   Estim<-Estim[sapply(Estim,function(l){!is.character(l$Sample)})]
   Estim<-lapply(as.list(noms),function(nom){plyr::laply(Estim,function(ll){ll[[nom]]})})
@@ -252,7 +253,7 @@ Simulation_data<-function(popmodelfunction,theta,xi,conditionalto,
                           method=NULL,nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(theta,xi,conditionalto)
   cave <- cav(model,nbrepSigma=nbrepSigma,nbrepI=nbrepI,method)
-  sim<-simule(model,nbreps=nbreps,method)
+  suppressWarnings(sim<-simule(model,nbreps=nbreps,method))
   return(list(model=model,xi=xi,sim=sim,cave=cave))}
 
 simulation.summary<-function(table_data){
