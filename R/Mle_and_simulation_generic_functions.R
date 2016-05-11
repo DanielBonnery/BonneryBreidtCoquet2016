@@ -259,19 +259,18 @@ Simulation_data<-function(popmodelfunction,theta,xi,conditionalto,
   return(list(model=model,xi=xi,sim=sim,cave=cave))}
 
 simulation.summary<-function(table_data){
-  lapply(table_data,function(l){
-    ll<-c(l$sim[c("Mean","Bias","Variance","M.S.E.","E")],l$cave["V"])
+    ll<-c(table_data$sim[c("Mean","Bias","Variance","M.S.E.","E")],table_data$cave["V"])
     X<-do.call(rbind,
                lapply(c("Naive","Pseudo","Sample","Full"),function(est){
                  do.call(data.frame,c(list(Estimator=est),
-                                      list("theta"=as.array(list(l$model$theta))),
-                                      list("xi"=as.array(list(l$model$xi))),
-                                      list("Contidional to"=as.array(list(l$model$conditionalto))),
+                                      list("theta"=as.array(list(table_data$model$theta))),
+                                      list("xi"=as.array(list(table_data$model$xi))),
+                                      list("Contidional to"=as.array(list(table_data$model$conditionalto))),
                                       list("Mean"=as.array(list(signif(ll$Mean[est][[1]],3)))),
                                       list("% Relative Bias"=as.array(list(signif(100*ll$Bias[est][[1]]/ll$E[est][[1]],3)))),
                                       list("RMSE Ratio"=as.array(list(signif(diag(as.matrix(ll$"M.S.E."[est][[1]]))/diag(as.matrix(ll$"M.S.E"["Sample"][[1]],3)))))),
                                       list("Empirical Variance"=as.array(list(signif(diag(as.matrix(ll$Variance[est][[1]],3)))))),
                                       list("Asymptotic Variance"=as.array(list(signif(diag(as.matrix(ll$V[est][[1]],3))))))))}))
     names(X)<-c("Estimator",
-                "$\\theta$","$\\xi$",paste0("Conditional to (", paste(names(unlist(table_data[[1]]$model$conditionalto)),collapse=","),")"),"Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
-    X})}
+                "$\\theta$","$\\xi$",paste0("Conditional to (", paste(names(unlist(table_data$model$conditionalto)),collapse=","),")"),"Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
+    X}

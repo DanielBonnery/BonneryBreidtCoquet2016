@@ -3,41 +3,28 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Creates a table from simulation data}
 \description{
-
 This function creates a dataframe out of the output of the simulation_data function.
-
 }
 \usage{
 simulation.summary(table_data)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{table_data}{A list, output of simulation_data.}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+Returns a dataframe that contains a summary (bias, variance, MSE, ... of different estimators (Sample, Pseudo, Naive and Full MLE))}
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+A data frame
 }
 \references{
-%% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+Daniel Bonnery
 }
 \note{
-%%  ~~further notes~~
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 ##---- Should be DIRECTLY executable !! ----
@@ -45,7 +32,7 @@ table_data<-Simulation_data(popmodelfunction = model.Pareto.bernstrat,
                                                     theta=4,
                                                     xi=xi,
                                                     conditionalto=list(N=80,sampleparam=list(tauh=c(0.5,0.7))),
-                                                    nbreps=30)})
+                                                    nbreps=30)
 simulation.summary(table_data)
 
 ## The function is currently defined as
