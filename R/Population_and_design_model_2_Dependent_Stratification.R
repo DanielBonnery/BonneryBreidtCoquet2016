@@ -3,8 +3,8 @@ model.dep.strat2<-function(
   xi=2,
   conditionalto=list(N=1000,sigma=1,EX=1,SX=1,sampleparam=list(proph=c(.7,.3),tauh=c(1/70,2/15)))){
   #for simplicity of notation
-  attach(conditionalto)
-  attach(sampleparam)
+  suppressMessages(attach(conditionalto))
+  suppressMessages(attach(sampleparam))
   ## objects related to population generation
   rloiy <- function(.conditionalto=conditionalto){
     x=qnorm((1:.conditionalto$N)/(.conditionalto$N+1),.conditionalto$EX,.conditionalto$SX);

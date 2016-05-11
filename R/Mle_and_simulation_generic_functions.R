@@ -123,7 +123,7 @@ if(FALSE){
 
 
 calcule.Sigma<-function(model,nbrepSigma=1000,method=list(I="MC",Sigma="MC")){
-  attach(model$conditionalto)
+  suppressMessages(attach(model$conditionalto))
   return(N *model$tau*
            var(plyr::aaply(
              plyr::raply(nbrepSigma,
@@ -155,7 +155,7 @@ calculeV<-function(Sigma,Im,dimtheta){
 cav<-function(model,nbrepSigma=300,nbrepI=300,method=list(Sigma="MC")){
   method<-list(Sigma=if(is.null(method$Sigma)){if(!is.null(model$Sigma)){"formula"}else{"MC"}}else{method$Sigma},
                I=if(is.null(method$Sigma)){if(!is.null(model$I)){"formula"}else{"FirstDeriv"}}else{method$I})
-  attach(model$conditionalto)
+  suppressMessages(attach(model$conditionalto))
   Sigma <- calcule.Sigma(model,nbrepSigma,method$Sigma)
   Imatrix <- Imatrixf(model,method=method$I)
   V123<-calculeV(Sigma,Imatrix,length(model$theta))
@@ -210,8 +210,8 @@ simule<-function(model,
               Naive =if(is.null(method$Naive )){if(is.null(model$thetaniais)){"nlm"}else{"formula"}}else{method$Naive },
               Full  =if(is.null(method$Full  )){if(is.null(model$thetafull)) {"nlm"}else{"formula"}}else{method$Full  })
   #Set the precision (used in optimisation procedure)
-  attach(model)
-  attach(Scheme)
+    suppressMessages(attach(model))
+    suppressMessages(attach(Scheme))
     Estim <- plyr::rlply(nbreps,
                        (function(){
                          #Population generation and sample selection
@@ -230,7 +230,7 @@ simule<-function(model,
   Estim<-Estim[sapply(Estim,function(l){!is.character(l$Sample)})]
   Estim<-lapply(as.list(noms),function(nom){plyr::laply(Estim,function(ll){ll[[nom]]})})
   names(Estim)<-noms
-  attach(Estim)
+    suppressMessages(attach(Estim))
   Var<-lapply(Estim,var,na.rm=TRUE)
   M=lapply(Estim,function(est){apply(as.matrix(est),2,mean,na.rm=TRUE)})
   E=list(model$xi,model$theta,model$theta,model$theta,model$xi,model$theta)
