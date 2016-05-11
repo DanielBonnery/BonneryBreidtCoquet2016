@@ -42,12 +42,6 @@ model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,samplepa
   rloiy=function(){exp(-log(1-runif(conditionalto$N))/theta)}
   rloiz=function(y){rbinom(length(y),size=1,prob=1/y^xi)}
   
-  V=Sigma[1,1]/I11formula^2+I12formula/I11formula^2*(Sigma[2,2]*I12formula-2*Sigma[1,2])
-  VHT=tau*(
-    ((tauh[1]^(-1)-1)^2*tauh[1]+(1-tauh[1]))*(-(2-theta)^(-1)*theta+(2-xi-theta)^(-1)*theta)
-    +(tauh[2]^(-1)-1)^2*tauh[2]+(1-tauh[2])*(xi+theta-2)^(-1)*theta
-    +(-(2-theta)^(-1)*theta-(1-theta)^(-2)*theta^(2)))*(theta-1)^(4)
-  Vniais=NULL
   
   return(
   list(

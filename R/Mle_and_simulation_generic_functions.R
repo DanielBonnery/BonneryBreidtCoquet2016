@@ -154,7 +154,7 @@ calculeV<-function(Sigma,Im,dimtheta){
 
 cav<-function(model,nbrepSigma=300,nbrepI=300,method=list(Sigma="MC")){
   method<-list(Sigma=if(is.null(method$Sigma)){if(!is.null(model$Sigma)){"formula"}else{"MC"}}else{method$Sigma},
-               I=if(is.null(method$Sigma)){if(!is.null(model$I)){"formula"}else{"MC"}}else{method$I})
+               I=if(is.null(method$Sigma)){if(!is.null(model$I)){"formula"}else{"FirstDeriv"}}else{method$I})
   attach(model$conditionalto)
   Sigma <- calcule.Sigma(model,nbrepSigma,method$Sigma)
   Imatrix <- Imatrixf(model,method=method$I)
