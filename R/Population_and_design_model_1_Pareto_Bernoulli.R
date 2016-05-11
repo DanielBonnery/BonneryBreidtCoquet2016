@@ -35,7 +35,7 @@ model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,samplepa
   Sigma<-calculeSigma()
   I11formula<--(((tauh[2]-tauh[1])*xi)/((theta+xi)*(tauh[2]*theta+tauh[1]*xi))*(1/(theta+xi)+tauh[2]/(tauh[2]*theta+tauh[1]*xi))-1/theta^2);
   I12formula<--((tauh[2]-tauh[1])*((tauh[1]*xi)/(tauh[2]*theta+tauh[1]*xi)+xi/(theta+xi)-1))/((theta+xi)*(tauh[2]*theta+tauh[1]*xi));
-  rloiy=function(N,conditionalto=NULL){exp(-log(1-runif(N))/theta)}
+  rloiy=function(){exp(-log(1-runif(conditionalto$N))/theta)}
   rloiz=function(y){rbinom(length(y),size=1,prob=1/y^xi)}
   return(
   list(

@@ -50,11 +50,9 @@ RhoDeriveloglikethetaxi2<-function(y,model,theta,xi){
   if(is.matrix(y)){return(plyr::aaply(y,1,rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi))}}   
 ## Computation of information matrices
 
-Imatrixf<-function(N,model,nbrepI=300,methodIm="FirstDeriv"){
-  if(methodIm=="formula"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
-  if(methodIm=="FirstDeriv"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
-  
-}
+Imatrixf<-function(N,model,nbrepI=300,method=list(I="FirstDeriv")){
+  if(method$I=="formula"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
+  if(method$I=="FirstDeriv"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}}
 
 Imatrix1<-function(model,nbrepI=300){#3 minutes for n=30
   xx<-plyr::raply(nbrepI,
@@ -122,7 +120,7 @@ if(FALSE){
 }
 
 
-calcule.Sigma<-function(model,nbrepSigma=1000,methodI="MC",methodSigma="MC"){
+calcule.Sigma<-function(model,nbrepSigma=1000,method=list(I="MC",Sigma="MC")){
   attach(model$conditionalto)
   return(N *model$tau*
            var(plyr::aaply(
@@ -152,10 +150,12 @@ calculeV<-function(Sigma,Im,dimtheta){
   return(list(V=V,V1=V1,V2=V2,V3=V3))}
 
 
-cav<-function(model,nbrepSigma=300,nbrepI=300,methodI = "MC", methodSigma = "MC"){
+cav<-function(model,nbrepSigma=300,nbrepI=300,method=NULL){
+  method<-list(Sigma=if(is.null(method$Sigma)){if(!is.null(model$Sigma)){"formula"}else{"MC"}}else{model$Sigma},
+               I=if(is.null(method$Sigma)){if(!is.null(model$I)){"formula"}else{"MC"}}else{model$I})
   attach(model$conditionalto)
-  Sigma <- calcule.Sigma(model,nbrepSigma)
-  Imatrix <- Imatrix7(model)
+  Sigma <- calcule.Sigma(model,nbrepSigma,method$Sigma)
+  Imatrix <- Imatrixf(model,method$I)
   V123<-calculeV(Sigma,Imatrix,length(model$theta))
   V<-list(Sample=V123$V/(N*model$tau),Pseudo=NA,Naive=NA,Full=NA)
   return(list(Sigma=Sigma,Im=Imatrix,V=V,
@@ -200,7 +200,10 @@ pseudoMLE<-function(y,z,s,pi=NULL,model,method="nlm"){
 
 simule<-function(model,
                  nbreps=300,
-                 method=list(Sample="nlm",Pseudo="nlm",Naive="nlm",Full="nlm",Sigma="",I="")){
+                 method=list(Sample="nlm",
+                             Pseudo=if(!exists(model$thetaht)){"nlm"}else{"formula"},
+                             Naive=if(!exists(model$thetaniais)){"nlm"}else{"formula"},
+                             Full=if(!exists(model$thetafull)){"nlm"}else{"formula"})){
   #Set the precision (used in optimisation procedure)
   attach(model)
   attach(Scheme)
@@ -209,12 +212,12 @@ simule<-function(model,
                        (function(){
                          #Population generation and sample selection
                          Obs<-generate.observations(model)
-                         thetaxi.full=fullMLE(Obs,model,method)
+                         thetaxi.full=fullMLE(Obs,model,method$Full)
                          xi.hat   =xihat     (Obs)
                          return(list(xi.hat   =xi.hat,
                                      Pseudo =thetaht(Obs),
                                      Naive=thetaniais(Obs),
-                                     Sample=try(sampleMLE(Obs,model,method,xi.hat=xi.hat)),
+                                     Sample=try(sampleMLE(Obs,model,method$Sample,xi.hat=xi.hat)),
                                      xi.full=thetaxi.full[length(model$theta)+(1:length(model$xi))],
                                      Full=thetaxi.full[1:length(model$theta)]))})())
   noms<-names(Estim[[1]])
@@ -240,11 +243,12 @@ simule<-function(model,
     "M.S.E."=MSE))}
 
 #7. Simulations and output
-Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,conditionalto,method="nlm",nbreps=3000,nbrepI=3000,nbrepSigma=1000){
+Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,conditionalto,
+                          method=NULL,nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(theta,xi,conditionalto)
-  cave <- cav(model,nbrepSigma=nbrepSigma,nbrepI=nbrepI,methodI="MC",methodSigma="MC")
-  sim<-simule(model,nbreps=nbreps,method=method)
-  return(list(model=model,xi=xi,method=method,sim=sim,cave=cave))}
+  cave <- cav(model,nbrepSigma=nbrepSigma,nbrepI=nbrepI,method)
+  sim<-simule(model,nbreps=nbreps,method)
+  return(list(model=model,xi=xi,sim=sim,cave=cave))}
 
 simulation.summary<-function(table_data){
   lapply(table_data,function(l){
