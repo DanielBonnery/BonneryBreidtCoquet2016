@@ -52,7 +52,7 @@ model.dep.strat2<-function(
         sigmahat<-sqrt(sum(lmm$residuals^2/Obs$pik)/sum(1/Obs$pik))
         return(c(as.vector(lmm$coefficients),sigmahat))}
     thetaniais=function(Obs){
-        lmm<-lm(y[,2]~cbind(y[,1]));
+        lmm<-lm(Obs$y[,2]~cbind(Obs$y[,1]));
         return(c(as.vector(lmm$coefficients),summary(lmm)$sigma))}
   # Final result
   return(list(

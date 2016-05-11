@@ -17,7 +17,7 @@ generate.observations<-function(model){
   Z<-rloiz(Y); #Z generation
   S<-model$Scheme$S(Z);     #sample selection
   Pik<-model$Scheme$Pik(Z)
-  list(y=Y[S],z=Z[S],pik=Pik[S])}
+  list(y=as.matrix(Y)[S,],as.matrix(Z)[S,],pik=Pik[S])}
 ## 1. Computations related to loglikelihood
 ##1.1 Calculus of the plugin sample log likelihood function
 sample.loglikelihood.plugin<-function(theta,y,model,xi){sum(log(model$rhothetaxi(y,theta,xi))+log(model$dloitheta(y,theta)))}
