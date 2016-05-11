@@ -1,8 +1,7 @@
 \name{birth}
 \alias{birth}
 \docType{data}
-\title{
-}
+\title{Birth weight and gestational age data, from 1988 NMIH survey}
 \description{
 Birth weight, gestational age sampling weight and stratum for 90 observations from
 the 1988 National Maternal and Infant Health Survey.
