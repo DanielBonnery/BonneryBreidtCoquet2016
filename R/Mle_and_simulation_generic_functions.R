@@ -270,5 +270,5 @@ simulation.summary<-function(table_data){
                                       list("Empirical Variance"=as.array(list(signif(diag(as.matrix(ll$Variance[est][[1]],3)))))),
                                       list("Asymptotic Variance"=as.array(list(signif(diag(as.matrix(ll$V[est][[1]],3))))))))}))
     names(X)<-c("Estimator",
-                "$\\theta$","$\\xi$","Conditional to","Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
+                "$\\theta$","$\\xi$",paste0("Conditional to (", paste(names(unlist(table_data[[1]]$model$conditionalto)),collapse=","),")"),"Mean","% Relative Bias","RMSE Ratio","Empirical Variance","Asymptotic Variance")
     X})}
