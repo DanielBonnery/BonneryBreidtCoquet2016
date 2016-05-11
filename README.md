@@ -22,7 +22,7 @@ demo(table3)
 ### Table 1
 
 
-|Estimator |\(\theta\) |$\xi$ |Conditional to (N,sampleparam.tauh1,sampleparam.tauh2) |Mean |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
+|Estimator |$\theta$ |$\xi$ |Conditional to (N,sampleparam.tauh1,sampleparam.tauh2) |Mean |% Relative Bias |RMSE Ratio |Empirical Variance |Asymptotic Variance |
 |:---------|:--------|:-----|:------------------------------------------------------|:----|:---------------|:----------|:------------------|:-------------------|
 |Naive     |4        |0.1   |1e+04, 1e-02, 1e-01                                    |4.1  |2.39            |1.35043    |0.0181758          |NA                  |
 |Pseudo    |4        |0.1   |1e+04, 1e-02, 1e-01                                    |4.01 |0.311           |1.53996    |0.0309899          |NA                  |
