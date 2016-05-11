@@ -17,12 +17,13 @@ generate.observations<-function(model){
   Z<-rloiz(Y); #Z generation
   S<-model$Scheme$S(Z);     #sample selection
   Pik<-model$Scheme$Pik(Z)
-  list(y=Y[S],z=Z[S],pik<-Pik[S])}
+  list(y=Y[S],z=Z[S],pik=Pik[S])}
 ## 1. Computations related to loglikelihood
 ##1.1 Calculus of the plugin sample log likelihood function
 sample.loglikelihood.plugin<-function(theta,y,model,xi){sum(log(model$rhothetaxi(y,theta,xi))+log(model$dloitheta(y,theta)))}
 ##1.2 Calculus of the  sample log likelihood function
-sample.loglikelihood<-function(thetaxi,obs,model){model$sample.loglikelihood}
+sample.loglikelihood<-function(thetaxi,obs,model){model$sampleloglikelihood(Obs,theta=thetaxi[1:length(model$theta)],xi=thetaxi[length(model$theta)+(1:length(model$xi))])}
+full.loglikelihood<-function(thetaxi,obs,model){model$fullloglikelihood(Obs,theta=thetaxi[1:length(model$theta)],xi=thetaxi[length(model$theta)+(1:length(model$xi))])}
 ##1.3. Calculus of the mean population log likelihood
 pop.loglikelihood<-function(theta,y,model,xi){return(sum(log(model$dloitheta(y,theta))))}
 ##1.4. Calculus of the derivative of the loglikelihood for one observation
@@ -50,9 +51,10 @@ RhoDeriveloglikethetaxi2<-function(y,model,theta,xi){
   if(is.matrix(y)){return(plyr::aaply(y,1,rhoderiveloglikethetaxi2,model=model,theta=theta,xi=xi))}}   
 ## Computation of information matrices
 
-Imatrixf<-function(N,model,nbrepI=300,method=list(I="FirstDeriv")){
-  if(method$I=="formula"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}  
-  if(method$I=="FirstDeriv"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}}
+Imatrixf<-function(model,nbrepI=300,method=NULL){
+  if(is.null(method)){method<-"FirstDeriv"}
+  if(method=="FirstDeriv"){Imatrix7(model,nbrepI)}else{
+    if(method=="formula"&!is.null(model$cave$Imatrix)){model$cave$Imatrix}}}
 
 Imatrix1<-function(model,nbrepI=300){#3 minutes for n=30
   xx<-plyr::raply(nbrepI,
@@ -150,12 +152,12 @@ calculeV<-function(Sigma,Im,dimtheta){
   return(list(V=V,V1=V1,V2=V2,V3=V3))}
 
 
-cav<-function(model,nbrepSigma=300,nbrepI=300,method=NULL){
-  method<-list(Sigma=if(is.null(method$Sigma)){if(!is.null(model$Sigma)){"formula"}else{"MC"}}else{model$Sigma},
-               I=if(is.null(method$Sigma)){if(!is.null(model$I)){"formula"}else{"MC"}}else{model$I})
+cav<-function(model,nbrepSigma=300,nbrepI=300,method=list(Sigma="MC")){
+  method<-list(Sigma=if(is.null(method$Sigma)){if(!is.null(model$Sigma)){"formula"}else{"MC"}}else{method$Sigma},
+               I=if(is.null(method$Sigma)){if(!is.null(model$I)){"formula"}else{"MC"}}else{method$I})
   attach(model$conditionalto)
   Sigma <- calcule.Sigma(model,nbrepSigma,method$Sigma)
-  Imatrix <- Imatrixf(model,method$I)
+  Imatrix <- Imatrixf(model,method=method$I)
   V123<-calculeV(Sigma,Imatrix,length(model$theta))
   V<-list(Sample=V123$V/(N*model$tau),Pseudo=NA,Naive=NA,Full=NA)
   return(list(Sigma=Sigma,Im=Imatrix,V=V,
@@ -163,25 +165,27 @@ cav<-function(model,nbrepSigma=300,nbrepI=300,method=NULL){
 
 
 ##5. Optimisation procedure : computation of the maximum likelihood estimator
-fullMLE<-function(Obs,model,method="nlm"){
+fullMLE<-function(Obs,model,method=NULL){
+  if(is.null(method)){method="nlm"}
   ys<-as.matrix(Obs$y)
   if(method=="formula"){model$fullMLE(Obs)}else{
     if(!is.null(model$fulllikelihood)){optimx::optimx(c(model$theta,model$xi),
-                                                      fn =full.loglikelihood,control=list(maximize=TRUE,method="nlm"),model=model,y=ys,z=Obs$z)}else{NA}}}
-sampleMLE<-function(y,z,s,model,method="nlm",xi.hat=NULL){
-  if(method=="formula"){model$sampleMLE(y,z,s)}else{
-    if(is.null(xi.hat)){xi.hat<-model$xihat(y,z,s,model$Scheme$Pik(z))}
+                                                      fn =full.loglikelihood,control=list(maximize=TRUE,method=method),model=model,Obs=Obs)}else{NA}}}
+sampleMLE<-function(Obs,model,method=NULL,xi.hat=NULL){
+  if(is.null(method)){method="nlm"}
+  if(method=="formula"){model$sampleMLE(Obs)}else{
+    if(is.null(xi.hat)){xi.hat<-model$xihat(Obs)}
     unlist(optimx::optimx(model$theta,
                           fn=sample.loglikelihood.plugin,method=method,
                           control=list(maximize=TRUE),
-                          y=as.matrix(y)[s,],model=model,xi=xi.hat))[1:length(model$theta)]}}
-pseudoMLE<-function(y,z,s,pi=NULL,model,method="nlm"){
-  if(is.null(pi)){pik=model$Scheme$Pik(z)}
-  if(method=="formula"){model$pseudoMLE(y,z,s)}else{
+                          y=Obs$y,model=model,xi=xi.hat))[1:length(model$theta)]}}
+pseudoMLE<-function(Obs,model,method=NULL){
+  if(is.null(method)){method="nlm"}
+  if(method=="formula"){model$pseudoMLE(Obs)}else{
     unlist(optimx::optimx(model$theta,
                           fn=pseudo.loglikelihood,method=method,
                           control=list(maximize=TRUE),
-                          y=as.matrix(ys),model=model))}}
+                          y=Obs$y,model=model))}}
 
 #6. Simulation procedure
 # Entry :
@@ -200,10 +204,11 @@ pseudoMLE<-function(y,z,s,pi=NULL,model,method="nlm"){
 
 simule<-function(model,
                  nbreps=300,
-                 method=list(Sample="nlm",
-                             Pseudo=if(!exists(model$thetaht)){"nlm"}else{"formula"},
-                             Naive=if(!exists(model$thetaniais)){"nlm"}else{"formula"},
-                             Full=if(!exists(model$thetafull)){"nlm"}else{"formula"})){
+                 method=NULL){
+  method=list(Sample=if(is.null(method$Sample)){"nlm"}else{method$Sample},
+              Pseudo=if(is.null(method$Pseudo)){if(is.null(model$thetaht))   {"nlm"}else{"formula"}}else{method$Pseudo},
+              Naive =if(is.null(method$Naive )){if(is.null(model$thetaniais)){"nlm"}else{"formula"}}else{method$Naive },
+              Full  =if(is.null(method$Full  )){if(is.null(model$thetafull)) {"nlm"}else{"formula"}}else{method$Full  })
   #Set the precision (used in optimisation procedure)
   attach(model)
   attach(Scheme)
@@ -243,7 +248,7 @@ simule<-function(model,
     "M.S.E."=MSE))}
 
 #7. Simulations and output
-Simulation_data<-function(popmodelfunction,sampleparam,N,theta,xi,conditionalto,
+Simulation_data<-function(popmodelfunction,sampleparam,theta,xi,conditionalto,
                           method=NULL,nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(theta,xi,conditionalto)
   cave <- cav(model,nbrepSigma=nbrepSigma,nbrepI=nbrepI,method)

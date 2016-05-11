@@ -4,3 +4,4 @@ table1_data<-lapply(c(.1,1,2),function(xi){Simulation_data(popmodelfunction = mo
                                                     xi=xi,
                                                     conditionalto=list(N=10000,sampleparam=list(tauh=c(0.01,0.1))))})
 table1<-simulation.summary(table1_data)
+table1

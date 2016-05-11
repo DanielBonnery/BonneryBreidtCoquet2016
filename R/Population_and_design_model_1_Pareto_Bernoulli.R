@@ -3,6 +3,7 @@ model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,samplepa
     #sampleparam is a list with tauh
     attach(conditionalto)
     attach(sampleparam)
+  
   calculeSigma<-function(){
     # Check that Taylor deviates have mean zero, and compute their second moment.
     E_I<-tauh[1]+(tauh[2]-tauh[1])*theta/(theta+xi)
@@ -33,10 +34,21 @@ model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,samplepa
   }
   tau<-tauh[1]+(tauh[2]-tauh[1])*theta/(theta+xi)
   Sigma<-calculeSigma()
-  I11formula<--(((tauh[2]-tauh[1])*xi)/((theta+xi)*(tauh[2]*theta+tauh[1]*xi))*(1/(theta+xi)+tauh[2]/(tauh[2]*theta+tauh[1]*xi))-1/theta^2);
-  I12formula<--((tauh[2]-tauh[1])*((tauh[1]*xi)/(tauh[2]*theta+tauh[1]*xi)+xi/(theta+xi)-1))/((theta+xi)*(tauh[2]*theta+tauh[1]*xi));
+  I11<--(((tauh[2]-tauh[1])*xi)/((theta+xi)*(tauh[2]*theta+tauh[1]*xi))*(1/(theta+xi)+tauh[2]/(tauh[2]*theta+tauh[1]*xi))-1/theta^2);
+  I12<--((tauh[2]-tauh[1])*((tauh[1]*xi)/(tauh[2]*theta+tauh[1]*xi)+xi/(theta+xi)-1))/((theta+xi)*(tauh[2]*theta+tauh[1]*xi));
+  I22=NA
+  I=matrix(c(I11,I12,I12,I22),2,2)
+  
   rloiy=function(){exp(-log(1-runif(conditionalto$N))/theta)}
   rloiz=function(y){rbinom(length(y),size=1,prob=1/y^xi)}
+  
+  V=Sigma[1,1]/I11formula^2+I12formula/I11formula^2*(Sigma[2,2]*I12formula-2*Sigma[1,2])
+  VHT=tau*(
+    ((tauh[1]^(-1)-1)^2*tauh[1]+(1-tauh[1]))*(-(2-theta)^(-1)*theta+(2-xi-theta)^(-1)*theta)
+    +(tauh[2]^(-1)-1)^2*tauh[2]+(1-tauh[2])*(xi+theta-2)^(-1)*theta
+    +(-(2-theta)^(-1)*theta-(1-theta)^(-2)*theta^(2)))*(theta-1)^(4)
+  Vniais=NULL
+  
   return(
   list(
    theta=theta,
@@ -60,12 +72,6 @@ model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,samplepa
                                     (sampleparam$tauh%*%rbind(1-1/(as.vector(y)^xi),1/(as.vector(y)^xi))))},
   tau=tau,
   #logl1prime=logl1prime,
-  I11MC=function(){} ,
-  I12MC=function(){},
-  I11formula=I11formula,
-  I12formula=I12formula,
-  I11=I11formula,
-  I12=I12formula,
   xihat=function(Obs){
     HT_y<-sum(Obs$y/Obs$pik)
     HT_1<-sum(1/Obs$pik)
@@ -76,14 +82,7 @@ model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,samplepa
   xihatfuncdim=3,
   thetaniais=function(Obs){HT_theta<-mean(Obs$y)/(mean(Obs$y)-1)},
   thetaht=function(Obs){
-    HT_y<-sum((Obs$y/pik))
+    HT_y<-sum((Obs$y/Obs$pik))
     HT_1<-sum(1/Obs$pik)
     HT_y/(HT_y-HT_1)},
-  Sigma=calculeSigma(),
-  V=Sigma[1,1]/I11formula^2+I12formula/I11formula^2*(Sigma[2,2]*I12formula-2*Sigma[1,2]),
-  VHT=tau*(
-    ((tauh[1]^(-1)-1)^2*tauh[1]+(1-tauh[1]))*(-(2-theta)^(-1)*theta+(2-xi-theta)^(-1)*theta)
-      +(tauh[2]^(-1)-1)^2*tauh[2]+(1-tauh[2])*(xi+theta-2)^(-1)*theta
-    		+(-(2-theta)^(-1)*theta-(1-theta)^(-2)*theta^(2)))*(theta-1)^(4),
-  Vniais=NULL,
   supportY=c(-.1,2.1)))}
