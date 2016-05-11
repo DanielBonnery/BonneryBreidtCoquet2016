@@ -252,7 +252,9 @@ simule<-function(model,
 Simulation_data<-function(popmodelfunction,theta,xi,conditionalto,
                           method=NULL,nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(theta,xi,conditionalto)
+  message("1. compute the information matrix, Sigma, and the approximated variance of sample MLE" )
   cave <- cav(model,nbrepSigma=nbrepSigma,nbrepI=nbrepI,method)
+  message(paste0("2. replicates ",nbreps," times: generates the study variables, generates the design variables conditional to study variables, draw sample, compute all estimates of theta"))
   suppressWarnings(sim<-simule(model,nbreps=nbreps,method))
   return(list(model=model,xi=xi,sim=sim,cave=cave))}
 

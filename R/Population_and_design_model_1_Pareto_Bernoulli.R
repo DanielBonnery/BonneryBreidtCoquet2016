@@ -1,8 +1,8 @@
 #2.1. Pareto distribution
 model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,sampleparam=list(tauh=c(.1,.5)))){
     #sampleparam is a list with tauh
-    attach(conditionalto)
-    attach(sampleparam)
+  suppressMessages(attach(conditionalto))
+  suppressMessages(attach(sampleparam))
   
   calculeSigma<-function(){
     # Check that Taylor deviates have mean zero, and compute their second moment.
