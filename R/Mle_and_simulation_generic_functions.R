@@ -218,7 +218,7 @@ simule<-function(model,
                          Obs<-generate.observations(model)
                          thetaxi.full=fullMLE(Obs,model,method$Full)
                          xi.hat   =xihat     (Obs)
-                         try(capture.output(Sample=sampleMLE(Obs,model,method$Sample,xi.hat=xi.hat)))
+                         try(capture.output(Sample<-sampleMLE(Obs,model,method$Sample,xi.hat=xi.hat)))
                          return(list(xi.hat   =xi.hat,
                                      Pseudo =thetaht(Obs),
                                      Naive=thetaniais(Obs),
