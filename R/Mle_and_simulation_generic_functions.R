@@ -17,7 +17,7 @@ generate.observations<-function(model){
   Z<-rloiz(Y); #Z generation
   S<-model$Scheme$S(Z);     #sample selection
   Pik<-model$Scheme$Pik(Z)
-  list(y=as.matrix(Y)[S,],as.matrix(Z)[S,],pik=Pik[S])}
+  list(y=as.matrix(Y)[S,],z=as.matrix(Z)[S,],pik=Pik[S])}
 ## 1. Computations related to loglikelihood
 ##1.1 Calculus of the plugin sample log likelihood function
 sample.loglikelihood.plugin<-function(theta,y,model,xi){sum(log(model$rhothetaxi(y,theta,xi))+log(model$dloitheta(y,theta)))}
@@ -60,7 +60,7 @@ Imatrix1<-function(model,nbrepI=300){#3 minutes for n=30
   xx<-plyr::raply(nbrepI,
                   (function(){
                     y<-model$rloiy()
-                    dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
+                    dd<-deriveloglikethetaxi(y,model,model$theta,model$xi)
                     rhorho=model$rhothetaxi(y,model$theta,model$xi)
                     return(t(dd)%*%(dd*rhorho)/model$conditionalto$N)})())
   return(apply(xx,2:length(dim(xx)),mean))}
@@ -72,7 +72,7 @@ Imatrix2<-function(model,nbrepI=300){
 
 Imatrix3<-function(model,nbrepI=300){
   y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy())))
-  dd<-Deriveloglikethetaxi(y,model,model$theta,model$xi)
+  dd<-deriveloglikethetaxi(y,model,model$theta,model$xi)
   rhorho=model$rhothetaxi(y,model$theta,model$xi)
   return(t(dd)%*%(dd*rhorho)/(nbrepI*N))}
 
@@ -85,13 +85,13 @@ Imatrix6<-function(model,nbrepI=300){
   y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy())))
   s<-model$Scheme$S(model$rloiz(y))
   nrep=length(s)
-  dd<-Deriveloglikethetaxi(y[s,],model,theta,xi)
+  dd<-deriveloglikethetaxi(y[s,],model,theta,xi)
   return(t(dd)%*%(dd)/nrep)}
 
 Imatrix7<-function(model,nbrepI=300){
   y<-do.call(rbind,plyr::rlply(nbrepI,as.matrix(model$rloiy())))
   s<-model$Scheme$S(model$rloiz(y))
-  dd<-Deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi)
+  dd<-deriveloglikethetaxi(as.matrix(y)[s,],model,model$theta,model$xi)
   return(t(dd)%*%(dd)/nrow(dd))}
 
 
@@ -248,7 +248,7 @@ simule<-function(model,
     "M.S.E."=MSE))}
 
 #7. Simulations and output
-Simulation_data<-function(popmodelfunction,sampleparam,theta,xi,conditionalto,
+Simulation_data<-function(popmodelfunction,theta,xi,conditionalto,
                           method=NULL,nbreps=3000,nbrepI=3000,nbrepSigma=1000){
   model<-popmodelfunction(theta,xi,conditionalto)
   cave <- cav(model,nbrepSigma=nbrepSigma,nbrepI=nbrepI,method)
