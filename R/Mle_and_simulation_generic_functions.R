@@ -14,7 +14,7 @@
 ##generate observations
 generate.observations<-function(model){
   Y<-model$rloiy();  #Y generation
-  Z<-rloiz(Y); #Z generation
+  Z<-model$rloiz(Y); #Z generation
   S<-model$Scheme$S(Z);     #sample selection
   Pik<-model$Scheme$Pik(Z)
   list(y=as.matrix(Y)[S,],z=as.matrix(Z)[S,],pik=Pik[S])}

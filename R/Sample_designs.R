@@ -71,14 +71,16 @@ StratS2<-function(sampleparam){
       return(dem)})}
 #4. Stratifi? avec Bernoulli dans chaque strate
 StratBern<-function(sampleparam){
+  Pik=function(z){
+    ooo=sort(unique(z));
+    Pikk<-rep(NULL,length(z));
+    for (i in 1:(length(ooo))){
+      Pikk[z==ooo[i]]<-sampleparam$tauh[i]}
+    return(Pikk)}
   list(
     sampleparam=sampleparam,
-    Pik=function(z){
-      ooo=sort(unique(z));
-      Pikk<-rep(NULL,length(z));
-      for (i in 1:(length(ooo))){
-        Pikk[z==ooo[i]]<-sampleparam$tauh[i]}
-      return(Pikk)},
+    Pik=Pik,
+    Deltakl=function(z){diag(1-Pik(z))},
     S=function(z){
       ooo=sort(unique(z));N<-length(z);
       Pikk<-rep(NULL,length(z));
