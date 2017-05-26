@@ -32,6 +32,18 @@ model.dep.strat2<-function(
         rhorho1<-rhorho1+(tauh[h]-tauh[h+1])*pnorm((zetah[h]-xi*as.matrix(y)[,2]                    )/ sigma);
         rhorho2<-rhorho2+(tauh[h]-tauh[h+1])*pnorm((zetah[h]-xi*(theta[1]+theta[2]*as.matrix(y)[,1]))/sqrt(sigma^2+xi^2*theta[3]^2));}
       return(rhorho1/rhorho2)}
+  eta=function(Obs,.xi=xi,.conditionalto=conditionalto){
+    #Initialisation of numerator and deniminator
+    suppressMessages(attach(.conditionalto))
+    rhorho1<-tauh[length(tauh)]; 
+    #Computation of limits of strata
+    Zetah=qnorm(cumsum(proph),0,1)
+    zetah=sqrt(xi^2*theta[2]^2*SX^2+ xi^2*theta[3]^2+sigma^2)*Zetah+xi*theta[1]+xi*theta[2]*EX
+    #Computation of numerator and deniminator
+    for(h in 1:(length(tauh)-1)){
+      rhorho1<-rhorho1+(tauh[h]-tauh[h+1])*pnorm((zetah[h]-xi*as.matrix(Obs$y)[,2]                    )/ sigma);}
+    rhorho1;}
+  
   #Computation of rho function (function of y)
   rho=function(y){return(rhothetaxi(y,theta,xi))}
   rhoxthetaxi=function(y,theta,xi){
@@ -75,4 +87,5 @@ model.dep.strat2<-function(
     xihatfunc2=xihatfunc2,
     xihatfuncdim=2,
     thetaht=thetaht,
-    thetaniais=thetaniais))}
+    thetaniais=thetaniais,
+    eta=eta))}
