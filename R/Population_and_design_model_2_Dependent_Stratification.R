@@ -66,7 +66,8 @@ model.dep.strat2<-function(
     thetaniais=function(Obs){
         lmm<-lm(Obs$y[,2]~cbind(Obs$y[,1]));
         return(c(as.vector(lmm$coefficients),summary(lmm)$sigma))}
-  # Final result
+  
+    # Final result
   return(list(
     theta=theta,xi=xi,conditionalto=conditionalto,
     rloiy=rloiy,
