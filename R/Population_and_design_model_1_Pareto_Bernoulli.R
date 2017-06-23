@@ -80,4 +80,5 @@ model.Pareto.bernstrat<-function(theta=1,xi=1,conditionalto=list(N=1000,samplepa
     HT_1<-sum(1/Obs$pik)
     HT_y/(HT_y-HT_1)},
   supportY=c(-.1,2.1),
-  eta=function(Obs,.xi=xi,.conditionalto=conditionalto){.conditionalto$sampleparam$tauh[1]+(.conditionalto$sampleparam$tauh[2]-.conditionalto$sampleparam$tauh[1])*obs$y^(-.xi)}))}
+  eta=function(Obs,.xi=xi,.conditionalto=conditionalto){
+    .conditionalto$sampleparam$tauh[1]+(.conditionalto$sampleparam$tauh[2]-.conditionalto$sampleparam$tauh[1])*Obs$y^(-.xi)}))}
